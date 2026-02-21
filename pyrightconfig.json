@@ -1,0 +1,8 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "extraPaths": "/home/anton/Code",
+  "pythonPlatform": "Linux",
+  "typeCheckingMode": "basic",
+  "analyzeUnannotatedFunctions": "false"
+}
