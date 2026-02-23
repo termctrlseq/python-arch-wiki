@@ -79,13 +79,18 @@ class CursesMenu:
                 self._start_idx += 1
                 self._stop_idx += 1
 
-    def _fold(self) -> None:
+    def _fold(self, up_level: bool = False) -> None:
         """(Un)fold submenu."""
         if hasattr(self.toc, "fold"):
-            self.toc.fold(self.contents[self._selected][0])
+            if up_level:
+                self.toc.fold(self.contents[self._selected][0][:-1])
+            else:
+                self.toc.fold(self.contents[self._selected][0])
             self.contents = [
                 [line] if isinstance(line, str) else line for line in self.toc
             ]
+            if self._selected > len(self.contents) - 1:
+                self._selected = len(self.contents) - 1
 
     def _get_contents(self) -> None:
         """Get contents of menu item."""
@@ -121,6 +126,8 @@ class CursesMenu:
         # Space
         elif key == ord(" "):
             self._fold()
+        elif key == ord("u"):
+            self._fold(True)
         # Ctrl-d
         elif key == 4:
             sys.exit()
