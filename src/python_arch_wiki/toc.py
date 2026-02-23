@@ -215,18 +215,17 @@ class Toc:
         """Print tag contents."""
         for tag in section.children:  # type: ignore
             tag: Tag
-            if not tag.name:
+            if tag.name is None:
                 continue
+            elif re.match(r"^h\d+", tag.name):
+                console.rule(f"[color(73)]{tag.get_text()}[/]")
             elif tag.name == "div" and tag.has_attr("class"):
                 if "archwiki-template-box" in tag.attrs["class"]:
                     self._print_text(tag.get_text())
-                elif "mw-heading" in tag.attrs["class"]:
-                    console.rule(
-                        f"[bold color(73)]{tag.get_text()}[/]",
-                        style="color(73)",
-                    )
                 else:
                     self._display_section(tag)
+            elif tag.name == "div":
+                self._display_section(tag)
             elif tag.name == "table":
                 caption = tag.find("caption")
                 title = caption.get_text() if caption else None
