@@ -110,10 +110,10 @@ class CursesMenu:
         """Handle keyboard and mouse events."""
         key = self._stdscr.getch()
         # Up arrow, Ctrl-p, Shift-TAB
-        if key in [curses.KEY_UP, 16, curses.KEY_BTAB]:
+        if key in [curses.KEY_UP, 16, curses.KEY_BTAB, ord("k")]:
             self._previous()
         # Down arrow, Ctrl-n, TAB
-        elif key in [curses.KEY_DOWN, 14, ord("\t")]:
+        elif key in [curses.KEY_DOWN, 14, ord("\t"), ord("j")]:
             self._next()
         # Enter
         elif key == ord("\n"):
@@ -124,10 +124,10 @@ class CursesMenu:
             ]
             self._restore_state()
         # Space
-        elif key == ord(" "):
+        elif key in [ord(" "), ord("l")]:
             self._fold()
-        elif key == ord("u"):
-            self._fold(True)
+        elif key in [ord("u"), ord("h")]:
+            self._fold(up_level=True)
         # Ctrl-d
         elif key == 4:
             sys.exit()
