@@ -151,7 +151,7 @@ class CursesMenu:
         elif key in [ord("u"), ord("h")]:
             self._fold(up_level=True)
         # Ctrl-d
-        elif key == 4:
+        elif key in [4, ord("q")]:
             sys.exit()
         elif key == curses.KEY_MOUSE:
             try:
