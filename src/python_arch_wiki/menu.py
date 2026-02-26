@@ -20,7 +20,7 @@ class CursesMenu:
         self._selected = 0
         self._start_idx = 0
         self._stop_idx = self._start_idx + self._height
-        self._saved_idx = None
+        self._saved_state = None
         self._start_curses()
         signal.signal(signal.SIGWINCH, self._signal_win_resize)
 
@@ -88,13 +88,29 @@ class CursesMenu:
     def _fold(self, up_level: bool = False) -> None:
         """(Un)fold submenu."""
         if hasattr(self.toc, "fold"):
+            section = self.contents[self._selected][0]
+            logger.debug("Fold: selected = %s", self._selected)
             if up_level:
-                self.toc.fold(self.contents[self._selected][0][:-1])
+                if len(section) > 1:
+                    self.toc.fold(section[:-1])
+                    for i, sect in enumerate(self.contents):
+                        if sect[0] == section[:-1]:
+                            self._selected = i
+                    if self._selected < self._start_idx:
+                        self._start_idx = self._selected
+                        self._stop_idx = self._start_idx + self._height
+                    if self._selected > self._stop_idx:
+                        self._stop_idx = self._selected
+                        self._start_idx = max(
+                            0, self._stop_idx - self._height
+                        )
             else:
-                self.toc.fold(self.contents[self._selected][0])
+                self.toc.fold(section)
             self.contents = [
                 [line] if isinstance(line, str) else line for line in self.toc
             ]
+            if self._save_state:
+                self._restore_state()
             if self._selected > len(self.contents) - 1:
                 self._selected = len(self.contents) - 1
 
@@ -197,11 +213,14 @@ class CursesMenu:
         self._stdscr.refresh()
 
     def _save_state(self):
-        self._saved_idx = self._start_idx, self._stop_idx, self._selected
+        self._saved_state = self._start_idx, self._stop_idx, self._selected
 
     def _restore_state(self):
-        if self._saved_idx:
-            self._start_idx, self._stop_idx, self._selected = self._saved_idx
+        if self._saved_state:
+            self._start_idx, self._stop_idx, self._selected = (
+                self._saved_state
+            )
+            self._saved_state = None
 
 
 def main() -> None:
