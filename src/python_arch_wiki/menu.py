@@ -1,7 +1,13 @@
 import curses
+import logging
 import os
 import signal
 import sys
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename="wiki.log", encoding="utf-8", level=logging.DEBUG
+)
 
 
 class CursesMenu:
