@@ -6,7 +6,7 @@ import sys
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    filename="wiki.log", encoding="utf-8", level=logging.DEBUG
+    filename="wiki.log", filemode="w", encoding="utf-8", level=logging.WARNING
 )
 
 
@@ -49,7 +49,7 @@ class CursesMenu:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self._end_curses()
         return False
 
