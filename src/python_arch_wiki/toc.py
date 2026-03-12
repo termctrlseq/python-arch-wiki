@@ -209,6 +209,9 @@ class Toc:
             text,
             flags=re.MULTILINE,
         )
+        text = re.sub("(Tip)", r"\n[bold green]\1[/]", text)
+        text = re.sub("(Note)", r"[bold blue]\1[/]", text)
+        text = re.sub("(Warning)", r"[bold yellow]\1[/]", text)
         console.print(text)
 
     def _display_section(self, section: Tag | None) -> None:
@@ -219,11 +222,13 @@ class Toc:
                 continue
             elif re.match(r"^h\d+", tag.name):
                 console.rule(f"[color(73)]{tag.get_text()}[/]")
-            elif tag.name == "div" and tag.has_attr("class"):
-                if "archwiki-template-box" in tag.attrs["class"]:
-                    self._print_text(tag.get_text())
-                else:
-                    self._display_section(tag)
+            elif (
+                tag.name == "div"
+                and tag.has_attr("class")
+                and "archwiki-template-box" in tag.attrs["class"]
+            ):
+                self._print_text(tag.get_text())
+                console.print()
             elif tag.name == "div":
                 self._display_section(tag)
             elif tag.name == "table":
