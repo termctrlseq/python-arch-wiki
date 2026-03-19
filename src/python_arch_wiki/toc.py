@@ -193,8 +193,8 @@ class Toc:
 
     def _print_text(self, text: str) -> None:
         text = re.sub(
-            r"(^|:)(\s*[#\$])(\s*\S+)",
-            r"\1[bold][green]\2[/][bright_white]\3[/][/]",
+            r"(^|:\s)([#\$])(\s*\S+)",
+            r"\1[bold][green]\2[/][bright_white]\3[/]",
             text,
             flags=re.MULTILINE,
         )
