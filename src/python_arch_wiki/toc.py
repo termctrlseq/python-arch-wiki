@@ -231,6 +231,10 @@ class Toc:
                 elif text == "Warning":
                     color += " yellow"
                 self._print_text(f"[{color}]{text}:[/]{tag.get_text()}\n")
+            elif "archwiki-template-message" in tag.get_attribute_list(
+                "class"
+            ):
+                self._print_text(tag.get_text())
             elif tag.name == "div":
                 self._display_section(tag)
             elif tag.name == "table":
