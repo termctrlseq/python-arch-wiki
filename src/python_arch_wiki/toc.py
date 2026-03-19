@@ -218,7 +218,7 @@ class Toc:
             if tag.name is None:
                 continue
             for code in tag("code"):
-                code.string = f"[bold white]{code.string}[/]"
+                code.string = f"[bold white]{code.get_text()}[/]"
             if "mw-heading" in tag.get_attribute_list("class"):
                 console.rule(f"[color(73)]{tag.get_text()}[/]")
             elif "archwiki-template-box" in tag.get_attribute_list("class"):
