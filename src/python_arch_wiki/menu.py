@@ -11,11 +11,11 @@ logging.basicConfig(
 
 
 class CursesMenu:
-    def __init__(self, toc) -> None:
+    def __init__(self, menu) -> None:
         self._width, self._height = os.get_terminal_size()
-        self.toc = toc
+        self.menu = menu
         self.contents = [
-            [line] if isinstance(line, str) else line for line in self.toc
+            [line] if isinstance(line, str) else line for line in self.menu
         ]
         self._selected = 0
         self._start_idx = 0
@@ -88,12 +88,12 @@ class CursesMenu:
 
     def _fold(self, up_level: bool = False) -> None:
         """(Un)fold submenu."""
-        if hasattr(self.toc, "fold"):
+        if hasattr(self.menu, "fold"):
             section = self.contents[self._selected][0]
             logger.debug("Fold: selected = %s", self._selected)
             if up_level:
                 if len(section) > 1:
-                    self.toc.fold(section[:-1])
+                    self.menu.fold(section[:-1])
                     for i, sect in enumerate(self.contents):
                         if sect[0] == section[:-1]:
                             self._selected = i
@@ -106,9 +106,10 @@ class CursesMenu:
                             0, self._stop_idx - self._height
                         )
             else:
-                self.toc.fold(section)
+                self.menu.fold(section)
             self.contents = [
-                [line] if isinstance(line, str) else line for line in self.toc
+                [line] if isinstance(line, str) else line
+                for line in self.menu
             ]
             if self._save_state:
                 self._restore_state()
@@ -123,10 +124,10 @@ class CursesMenu:
             self._start_idx = 0
             self._stop_idx = self._height
             self._selected = 0
-            self.contents = self.toc.get_submenu(selected)
-        elif hasattr(self.toc, "display_contents"):
+            self.contents = self.menu.get_submenu(selected)
+        elif hasattr(self.menu, "display_contents"):
             self._end_curses()
-            self.toc.display_contents(selected)
+            self.menu.display_contents(selected)
             self._start_curses()
 
     def handle_input(self) -> str | tuple | None:
@@ -143,7 +144,8 @@ class CursesMenu:
             self._get_contents()
         elif key == curses.KEY_BACKSPACE:
             self.contents = [
-                [line] if isinstance(line, str) else line for line in self.toc
+                [line] if isinstance(line, str) else line
+                for line in self.menu
             ]
             self._restore_state()
         # Space
