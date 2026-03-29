@@ -26,7 +26,6 @@ class CursesMenu:
 
     def _start_curses(self) -> None:
         try:
-            os.system("clear")
             self._stdscr = curses.initscr()
             curses.noecho()
             curses.cbreak()
