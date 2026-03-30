@@ -17,7 +17,7 @@ os.environ["MANPAGER"] = "less --raw-control-chars --mouse"
 class Toc:
     """Arch wiki table of contents."""
 
-    home_url = "https://wiki.archlinux.org"
+    root_url = "https://wiki.archlinux.org"
     toc_session = requests.Session()
 
     section: tuple | None
@@ -162,7 +162,7 @@ class Toc:
             subsection.folded = not subsection.folded
 
     def _url_from_parts(self, href: list | str) -> str:
-        url_list = [Toc.home_url]
+        url_list = [Toc.root_url]
         if isinstance(href, list):
             url_list.extend(href)
         else:
