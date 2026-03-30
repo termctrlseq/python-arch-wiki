@@ -8,7 +8,7 @@ from bs4.element import Tag
 from rich.console import Console
 from rich.table import Table
 
-# use Console() for paging, style privides default text color
+# use Console() for paging, default text color 248
 console = Console(style="color(248)")
 # set less as pager
 os.environ["MANPAGER"] = "less --raw-control-chars --mouse"
@@ -63,8 +63,6 @@ class Toc:
     def add_subsection(self, tag, folded=False) -> None:
         """Add a subsection to table of contents."""
         subsection = self.parse_tag(tag)
-        # if not subsection[0]:
-        #     raise AttributeError("Can not add subsection without section")
         assert subsection[0], "Can not add subsection without section"
 
         # create a nested structure using section as a tuple of indices
