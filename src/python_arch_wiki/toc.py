@@ -75,7 +75,6 @@ class Toc:
         self, trtag: Tag
     ) -> tuple[tuple[int, ...] | None, str, str, int]:
         """Extract section info from tr tag into a tuple."""
-        assert trtag
         atag = trtag.find("a") if trtag else None
         if atag is None:
             raise ValueError("'a' tag not found")
