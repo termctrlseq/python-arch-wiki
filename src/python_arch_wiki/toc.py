@@ -253,10 +253,11 @@ class Toc:
             else:
                 Toc._print_text(tag.get_text())
 
-    def display_contents(self, href: str) -> None:
+    @classmethod
+    def display_contents(cls, href: str) -> None:
         try:
-            r = self.toc_session.get(
-                self._url_from_parts(href),
+            r = cls.toc_session.get(
+                cls._url_from_parts(href),
                 timeout=1,
             )
             r.raise_for_status()
@@ -266,7 +267,7 @@ class Toc:
         soup = BeautifulSoup(r.text, "lxml")
 
         with console.pager(styles=True):
-            self._display_section(soup.select_one("#bodyContent"))
+            cls._display_section(soup.select_one("#bodyContent"))
 
 
 def main() -> None:
