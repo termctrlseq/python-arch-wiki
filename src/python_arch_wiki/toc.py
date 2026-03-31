@@ -158,8 +158,9 @@ class Toc:
                 subsection = subsection.subsections[i - 1]
             subsection.folded = not subsection.folded
 
-    def _url_from_parts(self, href: list | str) -> str:
-        url_list = [self.root_url]
+    @classmethod
+    def _url_from_parts(cls, href: list | str) -> str:
+        url_list = [cls.root_url]
         if isinstance(href, list):
             url_list.extend(href)
         else:
