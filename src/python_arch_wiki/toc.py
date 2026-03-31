@@ -41,7 +41,7 @@ class Toc:
 
         if not section:
             try:
-                r = Toc.toc_session.get(
+                r = self.toc_session.get(
                     self._url_from_parts("/title/Table_of_contents"),
                     timeout=2,
                 )
@@ -159,7 +159,7 @@ class Toc:
             subsection.folded = not subsection.folded
 
     def _url_from_parts(self, href: list | str) -> str:
-        url_list = [Toc.root_url]
+        url_list = [self.root_url]
         if isinstance(href, list):
             url_list.extend(href)
         else:
@@ -173,7 +173,7 @@ class Toc:
 
         if not subsection.articles:
             try:
-                r = Toc.toc_session.get(
+                r = self.toc_session.get(
                     self._url_from_parts(subsection.href), timeout=2
                 )
                 r.raise_for_status()
@@ -252,7 +252,7 @@ class Toc:
 
     def display_contents(self, href: str) -> None:
         try:
-            r = Toc.toc_session.get(
+            r = self.toc_session.get(
                 self._url_from_parts(href),
                 timeout=1,
             )
