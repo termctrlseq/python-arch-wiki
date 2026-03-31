@@ -210,7 +210,8 @@ class Toc:
         )
         console.print(text)
 
-    def _display_section(self, section: Tag | None) -> None:
+    @staticmethod
+    def _display_section(section: Tag | None) -> None:
         """Print tag contents."""
         for tag in section.children:  # type: ignore
             tag: Tag
@@ -229,13 +230,13 @@ class Toc:
                     color += " blue"
                 elif text == "Warning":
                     color += " yellow"
-                self._print_text(f"[{color}]{text}:[/]{tag.get_text()}\n")
+                Toc._print_text(f"[{color}]{text}:[/]{tag.get_text()}\n")
             elif "archwiki-template-message" in tag.get_attribute_list(
                 "class"
             ):
-                self._print_text(tag.get_text())
+                Toc._print_text(tag.get_text())
             elif tag.name == "div":
-                self._display_section(tag)
+                Toc._display_section(tag)
             elif tag.name == "table":
                 caption = tag.find("caption")
                 title = caption.get_text() if caption else None
@@ -250,7 +251,7 @@ class Toc:
                     table.add_row(*entries)
                 console.print(table)
             else:
-                self._print_text(tag.get_text())
+                Toc._print_text(tag.get_text())
 
     def display_contents(self, href: str) -> None:
         try:
