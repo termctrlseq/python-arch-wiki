@@ -42,7 +42,9 @@ class Toc:
         if not section:
             try:
                 r = self.toc_session.get(
-                    self._url_from_parts("/title/Table_of_contents"),
+                    self._url_from_parts(
+                        [self.root_url, "/title/Table_of_contents"]
+                    ),
                     timeout=2,
                 )
                 r.raise_for_status()
@@ -158,14 +160,9 @@ class Toc:
                 subsection = subsection.subsections[i - 1]
             subsection.folded = not subsection.folded
 
-    @classmethod
-    def _url_from_parts(cls, href: list | str) -> str:
-        url_list = [cls.root_url]
-        if isinstance(href, list):
-            url_list.extend(href)
-        else:
-            url_list.append(href)
-        return "/".join(part.strip("/") for part in url_list)
+    @staticmethod
+    def _url_from_parts(parts: list | str) -> str:
+        return "/".join(part.strip("/") for part in parts)
 
     def get_submenu(self, section: tuple[int, ...]):
         subsection = self
@@ -175,7 +172,8 @@ class Toc:
         if not subsection.articles:
             try:
                 r = self.toc_session.get(
-                    self._url_from_parts(subsection.href), timeout=2
+                    self._url_from_parts([self.root_url, subsection.href]),
+                    timeout=2,
                 )
                 r.raise_for_status()
             except requests.exceptions.RequestException as e:
@@ -257,7 +255,7 @@ class Toc:
     def display_contents(cls, href: str) -> None:
         try:
             r = cls.toc_session.get(
-                cls._url_from_parts(href),
+                cls._url_from_parts([cls.root_url, href]),
                 timeout=1,
             )
             r.raise_for_status()
