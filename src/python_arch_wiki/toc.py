@@ -189,7 +189,8 @@ class Toc:
 
         return subsection.articles
 
-    def _print_text(self, text: str) -> None:
+    @staticmethod
+    def _print_text(text: str) -> None:
         text = re.sub(
             r"(^|:\s)([#\$])(\s*\S+)",
             r"\1[bold][green]\2[/][bright_white]\3[/]",
