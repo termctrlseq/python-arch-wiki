@@ -161,7 +161,7 @@ class Toc:
             subsection.folded = not subsection.folded
 
     @staticmethod
-    def _url_from_parts(parts: list | str) -> str:
+    def _url_from_parts(parts: list) -> str:
         return "/".join(part.strip("/") for part in parts)
 
     def get_submenu(self, section: tuple[int, ...]):
