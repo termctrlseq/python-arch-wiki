@@ -65,6 +65,10 @@ class Toc:
         )
         self.folded = folded if self.section else False
 
+    def close(self) -> None:
+        """Close session."""
+        self.toc_session.close()
+
     def add_subsection(self, tag, folded=False) -> None:
         """Add a subsection to table of contents."""
         subsection = self.parse_tag(tag)
@@ -280,6 +284,7 @@ def main() -> None:
     # for _, line in toc:
     #     print(line)
     print(toc.get_submenu((1, 1)))
+    toc.close()
 
 
 if __name__ == "__main__":

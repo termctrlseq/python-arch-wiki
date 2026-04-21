@@ -15,6 +15,8 @@ def main() -> None:
                 menu.display_menu()
                 menu.handle_input()
 
+    toc.close()
+
 
 if __name__ == "__main__":
     main()
