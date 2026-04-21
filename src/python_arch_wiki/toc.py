@@ -41,21 +41,24 @@ class Toc:
 
         if not section:
             try:
-                r = self.toc_session.get(
+                with self.toc_session.get(
                     self._url_from_parts(
                         [self.root_url, "/title/Table_of_contents"]
                     ),
                     timeout=2,
-                )
-                r.raise_for_status()
+                ) as r:
+                    r.raise_for_status()
+
+                    soup = BeautifulSoup(r.text, "lxml")
+                    rows = soup.select_one("#wiki-scripts-toc-table").select(  # type: ignore
+                        "tr"
+                    )
+                    section = rows[0]
+                    for row in rows[1:]:
+                        self.add_subsection(row, folded=folded)
+
             except requests.exceptions.RequestException as e:
                 sys.exit(f"{e}")
-
-            soup = BeautifulSoup(r.text, "lxml")
-            rows = soup.select_one("#wiki-scripts-toc-table").select("tr")  # type: ignore
-            section = rows[0]
-            for row in rows[1:]:
-                self.add_subsection(row, folded=folded)
 
         self.section, self.title, self.href, self.num_articles = (
             self.parse_tag(section) if isinstance(section, Tag) else section
@@ -174,19 +177,22 @@ class Toc:
 
         if not subsection.articles:
             try:
-                r = self.toc_session.get(
+                with self.toc_session.get(
                     self._url_from_parts([self.root_url, subsection.href]),
                     timeout=2,
-                )
-                r.raise_for_status()
+                ) as r:
+                    r.raise_for_status()
+
+                    soup = BeautifulSoup(r.text, "lxml")
+                    categories = soup.select_one(".mw-category")
+                    if categories:
+                        for atag in categories.select("a"):
+                            subsection.articles.append(
+                                [atag["href"], atag["title"]]
+                            )
+
             except requests.exceptions.RequestException as e:
                 sys.exit(f"{e}")
-
-            soup = BeautifulSoup(r.text, "lxml")
-            categories = soup.select_one(".mw-category")
-            if categories:
-                for atag in categories.select("a"):
-                    subsection.articles.append([atag["href"], atag["title"]])
 
         return subsection.articles
 
@@ -257,15 +263,15 @@ class Toc:
     @classmethod
     def display_contents(cls, href: str) -> None:
         try:
-            r = cls.toc_session.get(
+            with cls.toc_session.get(
                 cls._url_from_parts([cls.root_url, href]),
                 timeout=1,
-            )
-            r.raise_for_status()
+            ) as r:
+                r.raise_for_status()
+                soup = BeautifulSoup(r.text, "lxml")
+
         except requests.exceptions.RequestException as e:
             sys.exit(f"{e}")
-
-        soup = BeautifulSoup(r.text, "lxml")
 
         with console.pager(styles=True):
             cls._display_section(soup.select_one("#bodyContent"))
