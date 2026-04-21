@@ -65,9 +65,6 @@ class Toc:
         )
         self.folded = folded if self.section else False
 
-    def __del__(self) -> None:
-        self.toc_session.close()
-
     def add_subsection(self, tag, folded=False) -> None:
         """Add a subsection to table of contents."""
         subsection = self.parse_tag(tag)
