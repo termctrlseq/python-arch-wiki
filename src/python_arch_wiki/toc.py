@@ -200,17 +200,20 @@ class Toc:
 
     @staticmethod
     def _print_text(text: str) -> None:
+        # Command
         text = re.sub(
-            r"(^|:\s)([#\$])(\s*\S+)",
+            r"(^|:\s)([#\$])(\s\S+)",
             r"\1[bold][green]\2[/][bright_white]\3[/]",
             text,
             flags=re.MULTILINE,
         )
+        # Option
         text = re.sub(
             r"(\s-[\w-]+\b)",
             r"[bold color(103)]\1[/]",
             text,
         )
+        # Header
         text = re.sub(
             r"^([A-Z][\w\s-]+)(:)$",
             r"[color(74)]\1[/]\2",
