@@ -36,7 +36,7 @@ class CursesMenu:
             curses.init_pair(100, 1, -1)
             curses.mousemask(curses.ALL_MOUSE_EVENTS)
         except Exception as e:
-            os.system("reset")
+            run("reset")
             sys.exit(f"{e}")
 
     def _end_curses(self) -> None:
