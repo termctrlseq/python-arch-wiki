@@ -12,6 +12,10 @@ logging.basicConfig(
 )
 
 
+class EditError(Exception):
+    pass
+
+
 class CursesMenu:
     def __init__(self, menu) -> None:
         self._width, self._height = os.get_terminal_size()
@@ -260,6 +264,12 @@ class CursesMenu:
             )
             self._saved_state = None
 
+    def validator(self, ch):
+        if ch == 27:
+            raise EditError
+
+        return ch
+
     def _search(self):
         uly, ulx = curses.LINES // 2, curses.COLS // 4
         height, width = 1, curses.COLS // 2
@@ -276,9 +286,15 @@ class CursesMenu:
 
         box = Textbox(search_win)
         curses.curs_set(1)
-        box.edit()
+
+        try:
+            box.edit(self.validator)
+        except EditError:
+            return
+        finally:
+            curses.curs_set(0)
+
         search_term = box.gather()
-        curses.curs_set(0)
         result = self.menu.search(search_term)
         logger.debug("search: %s\n%s", search_term, result)
 
