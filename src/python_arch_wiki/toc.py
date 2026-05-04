@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import time
 
 import requests
 from bs4 import BeautifulSoup
@@ -40,13 +41,14 @@ class Toc:
         self.articles = []
 
         if not section:
-            try:
-                with self.toc_session.get(
-                    self._url_from_parts(
-                        [self.root_url, "/title/Table_of_contents"]
-                    ),
-                    timeout=2,
-                ) as r:
+            for _ in range(2):
+                try:
+                    r = self.toc_session.get(
+                        self._url_from_parts(
+                            [self.root_url, "/title/Table_of_contents"]
+                        ),
+                        timeout=2,
+                    )
                     r.raise_for_status()
 
                     soup = BeautifulSoup(r.text, "lxml")
@@ -57,12 +59,22 @@ class Toc:
                     for row in rows[1:]:
                         self.add_subsection(row, folded=folded)
 
-            except requests.exceptions.RequestException as e:
-                sys.exit(f"{e}")
+                    break
 
-        self.section, self.title, self.href, self.num_articles = (
-            self.parse_tag(section) if isinstance(section, Tag) else section
-        )
+                except ConnectionResetError:
+                    time.sleep(0.5)
+                    continue
+                except requests.exceptions.RequestException as e:
+                    self.toc_session.close()
+                    sys.exit(f"{e}")
+
+        if isinstance(section, tuple):
+            self.section, self.title, self.href, self.num_articles = section
+        elif isinstance(section, Tag):
+            self.section, self.title, self.href, self.num_articles = (
+                self.parse_tag(section)
+            )
+
         self.folded = folded if self.section else False
 
     def close(self) -> None:
@@ -194,6 +206,7 @@ class Toc:
                             )
 
             except requests.exceptions.RequestException as e:
+                self.toc_session.close()
                 sys.exit(f"{e}")
 
         return subsection.articles
@@ -277,6 +290,7 @@ class Toc:
                 soup = BeautifulSoup(r.text, "lxml")
 
         except requests.exceptions.RequestException as e:
+            cls.toc_session.close()
             sys.exit(f"{e}")
 
         with console.pager(styles=True):
@@ -300,6 +314,7 @@ class Toc:
                 r.raise_for_status()
                 soup = BeautifulSoup(r.text, "lxml")
         except requests.exceptions.RequestException as e:
+            self.toc_session.close()
             sys.exit(f"{e}")
 
         results = []
