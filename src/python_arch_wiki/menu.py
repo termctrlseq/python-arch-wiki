@@ -263,16 +263,22 @@ class CursesMenu:
     def _search(self):
         uly, ulx = curses.LINES // 2, curses.COLS // 4
         height, width = 1, curses.COLS // 2
+        prompt = " Search: "
+        plen = len(prompt)
+        self._stdscr.addstr(uly, ulx, prompt)
 
-        search_win = curses.newwin(height, width, uly, ulx)
+        search_win = curses.newwin(height, width - plen, uly, ulx + plen)
         rectangle(
-            self._stdscr, uly - 1, ulx - 2, uly + height, ulx + width + 1
+            self._stdscr, uly - 1, ulx - 1, uly + height, ulx + width + 1
         )
+        search_win.clear()
         self._stdscr.refresh()
 
         box = Textbox(search_win)
+        curses.curs_set(1)
         box.edit()
         search_term = box.gather()
+        curses.curs_set(0)
         result = self.menu.search(search_term)
         logger.debug("search: %s\n%s", search_term, result)
 
