@@ -171,7 +171,8 @@ class Toc:
     def _url_from_parts(parts: list) -> str:
         return "/".join(part.strip("/") for part in parts)
 
-    def get_submenu(self, section: tuple[int, ...]):
+    def get_submenu(self, section: tuple[int, ...]) -> list:
+        """Return list of articles."""
         subsection = self
         for i in section:
             subsection = subsection.subsections[i - 1]
@@ -263,6 +264,7 @@ class Toc:
 
     @classmethod
     def display_contents(cls, href: str) -> None:
+        """Display article."""
         try:
             with cls.toc_session.get(
                 cls._url_from_parts([cls.root_url, href]),
@@ -277,12 +279,37 @@ class Toc:
         with console.pager(styles=True):
             cls._display_section(soup.select_one("#bodyContent"))
 
+    def search(self, text: str) -> list:
+        """Search arch wiki."""
+        search_text = text.strip().replace(" ", "+")
+        payload = {
+            "search": search_text,
+            "title": "Special%3ASearch",
+            "profile": "default",
+            "fulltext": "1",
+        }
+        try:
+            with self.toc_session.get(
+                self._url_from_parts([self.root_url, "index.php"]),
+                params=payload,
+                timeout=1,
+            ) as r:
+                r.raise_for_status()
+                soup = BeautifulSoup(r.text, "lxml")
+        except requests.exceptions.RequestException as e:
+            sys.exit(f"{e}")
+
+        results = []
+        for tag in soup.select(".mw-search-result"):
+            heading = tag.find(class_="mw-search-result-heading")
+            results.append([heading.a["href"], heading.a["title"]])  # type: ignore
+
+        return results
+
 
 def main() -> None:
     toc = Toc(folded=False)
 
-    # for _, line in toc:
-    #     print(line)
     print(toc.get_submenu((1, 1)))
     toc.close()
 
