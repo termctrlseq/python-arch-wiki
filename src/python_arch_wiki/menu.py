@@ -170,8 +170,8 @@ class CursesMenu:
         elif key in [ord(" "), ord("l")]:
             self._fold()
 
-        # u or h
-        elif key in [ord("u"), ord("h")]:
+        # u, h, Escape
+        elif key in [ord("u"), ord("h"), 27]:
             self._fold(up_level=True)
 
         # Ctrl-d, q
@@ -230,13 +230,6 @@ class CursesMenu:
                     curses.color_pair(100),
                 )
                 self._stdscr.addstr(line + 1, column, border)
-
-        elif key in [curses.KEY_BACKSPACE, 27]:
-            self.contents = [
-                [line] if isinstance(line, str) else line
-                for line in self.menu
-            ]
-            self._restore_state()
 
     def _signal_win_resize(self, signum, stack_frame) -> None:  # noqa: ARG002
         """Handle SIGWINCH signal (resize window)."""
