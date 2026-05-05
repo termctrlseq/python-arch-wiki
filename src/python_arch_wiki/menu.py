@@ -264,7 +264,8 @@ class CursesMenu:
             )
             self._saved_state = None
 
-    def validator(self, ch):
+    @staticmethod
+    def validator(ch):
         if ch == 27:
             raise EditError
 
