@@ -140,9 +140,6 @@ class CursesMenu:
 
         if isinstance(selected, tuple):
             self._save_state()
-            self._start_idx = 0
-            self._stop_idx = self._height
-            self._selected = 0
             self.contents = self.menu.get_submenu(selected)
 
         elif hasattr(self.menu, "display_contents"):
@@ -249,6 +246,9 @@ class CursesMenu:
 
     def _save_state(self):
         self._saved_state = self._start_idx, self._stop_idx, self._selected
+        self._start_idx = 0
+        self._stop_idx = self._height
+        self._selected = 0
 
     def _restore_state(self):
         if self._saved_state:
@@ -294,11 +294,7 @@ class CursesMenu:
 
         if result:
             self.contents = result
-
             self._save_state()
-            self._start_idx = 0
-            self._stop_idx = self._height
-            self._selected = 0
 
 
 def main() -> None:
