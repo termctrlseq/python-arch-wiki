@@ -128,7 +128,7 @@ class CursesMenu:
                 for line in self.menu
             ]
 
-            if self._save_state:
+            if self._saved_state:
                 self._restore_state()
 
             if self._selected > len(self.contents) - 1:
