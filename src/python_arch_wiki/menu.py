@@ -110,29 +110,47 @@ class CursesMenu:
                         if sect[0] == section[:-1]:
                             self._selected = i
 
-                    if self._selected < self._start_idx:
-                        self._start_idx = self._selected
-                        self._stop_idx = self._start_idx + self._height
-
-                    if self._selected > self._stop_idx:
-                        self._stop_idx = self._selected
-                        self._start_idx = max(
-                            0, self._stop_idx - self._height
-                        )
-
             else:
                 self.menu.fold(section)
+
+            old_contents_len = len(self.contents)
 
             self.contents = [
                 [line] if isinstance(line, str) else line
                 for line in self.menu
             ]
 
-            if self._saved_state:
-                self._restore_state()
+            self._restore_state()
 
-            if self._selected > len(self.contents) - 1:
-                self._selected = len(self.contents) - 1
+            contents_len = len(self.contents)
+            if self._selected > contents_len - 1:
+                self._selected = contents_len - 1
+
+            if contents_len > old_contents_len:
+                self._stop_idx += max(
+                    0,
+                    contents_len
+                    - old_contents_len
+                    - self._stop_idx
+                    + self._selected
+                    + 1,
+                )
+                self._start_idx = max(0, self._stop_idx - self._height)
+
+            if contents_len <= self._height:
+                self._start_idx = 0
+                self._stop_idx = self._height
+            elif self._height > (contents_len - self._start_idx):
+                self._start_idx = contents_len - self._height
+                self._stop_idx = contents_len
+
+            if self._selected < self._start_idx:
+                self._start_idx = self._selected
+                self._stop_idx = self._start_idx + self._height
+
+            if self._selected > self._stop_idx:
+                self._stop_idx = self._selected
+                self._start_idx = max(0, self._stop_idx - self._height)
 
     def _get_contents(self) -> None:
         """Get contents of menu item."""
