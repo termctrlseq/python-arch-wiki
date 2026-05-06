@@ -39,7 +39,7 @@ class CursesMenu:
             curses.curs_set(0)
             curses.start_color()
             curses.use_default_colors()
-            curses.init_pair(100, 1, -1)
+            curses.init_pair(10, 1, -1)
             curses.mousemask(curses.ALL_MOUSE_EVENTS)
             curses.set_escdelay(50)
 
@@ -242,7 +242,7 @@ class CursesMenu:
                     line,
                     column,
                     msg,
-                    curses.color_pair(100),
+                    curses.color_pair(10),
                 )
                 self._stdscr.addstr(line + 1, column, border)
 
