@@ -41,7 +41,7 @@ class Toc:
         self.articles = []
 
         if not section:
-            for _ in range(2):
+            for i in range(3):
                 try:
                     r = self.toc_session.get(
                         self._url_from_parts(
@@ -62,7 +62,7 @@ class Toc:
                     break
 
                 except ConnectionResetError:
-                    time.sleep(0.5)
+                    time.sleep(0.5 * (i + 1))
                     continue
                 except requests.exceptions.RequestException as e:
                     self.toc_session.close()
