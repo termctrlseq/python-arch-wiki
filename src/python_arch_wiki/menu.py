@@ -7,9 +7,6 @@ from curses.textpad import Textbox, rectangle
 from subprocess import run
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    filename="wiki.log", filemode="w", encoding="utf-8", level=logging.WARNING
-)
 
 
 class EditError(Exception):

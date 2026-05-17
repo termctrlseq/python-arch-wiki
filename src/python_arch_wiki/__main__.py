@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from .menu import CursesMenu
@@ -19,4 +20,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        filename="wiki.log",
+        filemode="w",
+        encoding="utf-8",
+        level=logging.WARNING,
+    )
     main()
