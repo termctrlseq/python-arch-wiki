@@ -174,6 +174,16 @@ class CursesMenu:
         elif key in [curses.KEY_DOWN, 14, ord("\t"), ord("j")]:
             self._next()
 
+        elif key == ord("H"):
+            self._selected = self._start_idx
+
+        elif key == ord("M"):
+            stop = min(self._stop_idx, len(self.contents))
+            self._selected = self._start_idx + (stop - self._start_idx) // 2
+
+        elif key == ord("L"):
+            self._selected = min(self._stop_idx, len(self.contents)) - 1
+
         # Enter
         elif key == ord("\n"):
             self._get_contents()
