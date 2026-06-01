@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 # use Console() for paging, default text color 248
@@ -245,6 +246,8 @@ class Toc:
             tag: Tag
             if tag.name is None:
                 continue
+            if tag.string:
+                tag.string = escape(tag.string)
             for code in tag("code"):
                 code.string = f"[bold white]{code.get_text()}[/]"
             if "mw-heading" in tag.get_attribute_list("class"):
