@@ -238,6 +238,9 @@ class Toc:
     @staticmethod
     def _display_section(section: Tag | None) -> None:
         """Print tag contents."""
+        if section is None:
+            return
+
         for tag in section.children:  # type: ignore
             tag: Tag
             if tag.name is None:
