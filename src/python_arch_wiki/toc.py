@@ -253,7 +253,7 @@ class Toc:
             if "mw-heading" in tag.get_attribute_list("class"):
                 console.rule(f"[color(73)]{tag.get_text()}[/]")
             elif "archwiki-template-box" in tag.get_attribute_list("class"):
-                text = tag.strong.string.extract()  # type: ignore
+                text = tag.strong.extract().get_text()  # type: ignore
                 color = "bold"
                 if text == "Tip":
                     color += " green"
