@@ -268,6 +268,7 @@ class CursesMenu:
 
         self._stdscr.clear()
         self._stdscr.refresh()
+        self.display_menu()
 
     def _save_state(self):
         self._saved_state = self._start_idx, self._stop_idx, self._selected
