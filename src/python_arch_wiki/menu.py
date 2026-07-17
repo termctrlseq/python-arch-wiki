@@ -291,7 +291,8 @@ class CursesMenu:
         return ch
 
     def _search(self):
-        uly, ulx = curses.LINES // 2, curses.COLS // 4
+        max_y, max_x = self._stdscr.getmaxyx()
+        uly, ulx = max_y // 2, max_x // 4
         height, width = 1, curses.COLS // 2
         prompt = " Search: "
         plen = len(prompt)
