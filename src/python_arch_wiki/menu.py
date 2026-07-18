@@ -25,7 +25,6 @@ class CursesMenu:
         self._stop_idx = self._start_idx + self._height
         self._saved_state = None
         self._start_curses()
-        signal.signal(signal.SIGWINCH, self._signal_win_resize)
 
     def _start_curses(self) -> None:
         try:
@@ -39,12 +38,16 @@ class CursesMenu:
             curses.init_pair(10, 1, -1)
             curses.mousemask(curses.ALL_MOUSE_EVENTS)
             curses.set_escdelay(50)
+            self._oldsignal = signal.signal(
+                signal.SIGWINCH, self._signal_win_resize
+            )
 
         except Exception as e:
             run("reset")
             sys.exit(f"{e}")
 
     def _end_curses(self) -> None:
+        signal.signal(signal.SIGWINCH, self._oldsignal)
         self._stdscr.keypad(False)
         curses.nocbreak()
         curses.echo()
