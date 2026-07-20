@@ -227,13 +227,6 @@ class Toc:
             r"[bold color(103)]\1[/]",
             text,
         )
-        # Header
-        text = re.sub(
-            r"^([A-Z][\w\s-]+)(:)$",
-            r"[color(74)]\1[/]\2",
-            text,
-            flags=re.MULTILINE,
-        )
         console.print(text)
 
     @classmethod
