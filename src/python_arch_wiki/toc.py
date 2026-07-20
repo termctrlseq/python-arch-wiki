@@ -21,6 +21,7 @@ class Toc:
 
     root_url = "https://wiki.archlinux.org"
     toc_session = requests.Session()
+    show_url = True
 
     section: tuple | None
     title: str
@@ -230,7 +231,7 @@ class Toc:
         console.print(text)
 
     @classmethod
-    def _display_section(cls, section: Tag | None) -> None:
+    def _parse_section(cls, section: Tag | None) -> None:
         """Print tag contents."""
         if section is None:
             return
@@ -244,11 +245,18 @@ class Toc:
             for code in tag("code"):
                 code.string = f"[bold white]{code.get_text()}[/]"
             for a in tag("a"):
-                a.name = "p"
                 href = str(a["href"])
-                if href.startswith("/title"):
-                    href = cls._url_from_parts([cls.root_url, href])
-                a.string = rf"[bold]{a.string}[/] \[{href}]"
+                text = a.string
+                if href != text:
+                    a.name = "p"
+                    if href.startswith("/title"):
+                        href = cls._url_from_parts([cls.root_url, href])
+                    text = f"[bold color(249)]{text}[/]"
+                    if cls.show_url:
+                        text += rf" \[[#515478]{href}[/]]"
+                        if len(text) < console.width:
+                            text = text.replace(" ", "_")
+                    a.string = text
             if "mw-heading" in tag.get_attribute_list("class"):
                 console.rule(f"[color(73)]{tag.get_text()}[/]")
             elif "archwiki-template-box" in tag.get_attribute_list("class"):
@@ -266,7 +274,7 @@ class Toc:
             ):
                 cls._print_text(tag.get_text())
             elif tag.name == "div":
-                cls._display_section(tag)
+                cls._parse_section(tag)
             elif tag.name == "table":
                 caption = tag.find("caption")
                 title = caption.get_text() if caption else None
@@ -313,7 +321,7 @@ class Toc:
             sys.exit(f"{e}")
 
         with console.pager(styles=True):
-            cls._display_section(soup.select_one("#bodyContent"))
+            cls._parse_section(soup.select_one("#bodyContent"))
 
     def search(self, text: str) -> list:
         """Search arch wiki."""
