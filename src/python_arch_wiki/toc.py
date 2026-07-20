@@ -273,12 +273,26 @@ class Toc:
                 title = caption.get_text() if caption else None
                 table = Table(title=title, highlight=True)
                 rows = tag("tr")
-                for heading in rows[0]("th"):  # type: ignore
-                    table.add_column(heading.get_text())
+                if not rows:
+                    continue
+                for column in rows[0]("th"):
+                    colspan = column.get("colspan")
+                    coltext = column.get_text()
+                    if colspan is not None:
+                        for _ in range(int(str(colspan))):
+                            table.add_column(coltext)
+                    else:
+                        table.add_column(coltext)
                 for row in rows[1:]:
                     entries = []
-                    for column in row("td"):  # type: ignore
-                        entries.append(column.get_text())
+                    for column in row(re.compile("t[dh]")):
+                        colspan = column.get("colspan")
+                        coltext = column.get_text()
+                        if colspan is not None:
+                            for _ in range(int(str(colspan))):
+                                entries.append(f"[underline]{coltext}[/]")
+                        else:
+                            entries.append(coltext)
                     table.add_row(*entries)
                 console.print(table)
             else:
