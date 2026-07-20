@@ -236,8 +236,8 @@ class Toc:
         )
         console.print(text)
 
-    @staticmethod
-    def _display_section(section: Tag | None) -> None:
+    @classmethod
+    def _display_section(cls, section: Tag | None) -> None:
         """Print tag contents."""
         if section is None:
             return
@@ -250,6 +250,12 @@ class Toc:
                 tag.string = escape(tag.string)
             for code in tag("code"):
                 code.string = f"[bold white]{code.get_text()}[/]"
+            for a in tag("a"):
+                a.name = "p"
+                href = str(a["href"])
+                if href.startswith("/title"):
+                    href = cls._url_from_parts([cls.root_url, href])
+                a.string = rf"[bold]{a.string}[/] \[{href}]"
             if "mw-heading" in tag.get_attribute_list("class"):
                 console.rule(f"[color(73)]{tag.get_text()}[/]")
             elif "archwiki-template-box" in tag.get_attribute_list("class"):
@@ -261,13 +267,13 @@ class Toc:
                     color += " blue"
                 elif text == "Warning":
                     color += " yellow"
-                Toc._print_text(f"[{color}]{text}:[/]{tag.get_text()}\n")
+                cls._print_text(f"[{color}]{text}:[/]{tag.get_text()}\n")
             elif "archwiki-template-message" in tag.get_attribute_list(
                 "class"
             ):
-                Toc._print_text(tag.get_text())
+                cls._print_text(tag.get_text())
             elif tag.name == "div":
-                Toc._display_section(tag)
+                cls._display_section(tag)
             elif tag.name == "table":
                 caption = tag.find("caption")
                 title = caption.get_text() if caption else None
@@ -296,7 +302,7 @@ class Toc:
                     table.add_row(*entries)
                 console.print(table)
             else:
-                Toc._print_text(tag.get_text())
+                cls._print_text(tag.get_text())
 
     @classmethod
     def display_contents(cls, href: str) -> None:
