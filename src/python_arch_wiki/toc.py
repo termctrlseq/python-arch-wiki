@@ -257,19 +257,20 @@ class Toc:
                 href = str(a["href"])
                 text = a.string
 
-                if href != text:
+                if text and href != text:
                     a.name = "p"
                     if href.startswith("/title"):
                         href = cls._url_from_parts([cls.root_url, href])
 
-                    text = f"[bold color(249)]{text}[/]"
-                    # do we follow link text with url?
-                    if cls.show_url:
+                    # do we follow link with url?
+                    text_len = len(text)
+                    href_len = len(href)
+                    if cls.show_url and href.startswith("http"):
                         text += rf" \[[#515478]{href}[/]]"
-                        if len(text) < console.width:
-                            text = text.replace(" ", "_")
+                        if text_len + href_len < console.width:
+                            text = text.replace(" ", "[#515478]_[/]")
 
-                    a.string = text
+                    a.string = f"[bold color(251)]{text}[/]"
 
             if "mw-heading" in tag.get_attribute_list("class"):
                 style = "white"
