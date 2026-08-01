@@ -10,9 +10,9 @@ from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
 
-# use Console() for paging, default text color 248
+# use Console() for paging, set default text color
 console = Console(style="color(248)")
-# set less as pager
+# set less as the pager
 os.environ["MANPAGER"] = "less --raw-control-chars --mouse"
 
 
@@ -92,6 +92,7 @@ class Toc:
         parent = self
         for i in subsection[0][:-1]:
             parent = parent.subsections[i - 1]
+
         parent.subsections.append(Toc(subsection, folded=folded))
 
     def parse_tag(
@@ -104,6 +105,7 @@ class Toc:
 
         title = atag.string
         href = str(atag["href"])
+
         try:
             section = tuple(
                 int(x)
@@ -112,14 +114,17 @@ class Toc:
                 .strip(".")
                 .split(".")
             )
+
         except (AttributeError, ValueError):
             section = None
+
         try:
             num_articles = int(
                 atag.find_next_sibling("small")
                 .get_text()  # type: ignore
                 .strip("()")
             )
+
         except (AttributeError, ValueError):
             num_articles = 0
 
@@ -240,49 +245,68 @@ class Toc:
             tag: Tag
             if tag.name is None:
                 continue
+
             if tag.string:
+                # otherwise [zram0] et al. will not print
                 tag.string = escape(tag.string)
+
             for code in tag("code"):
                 code.string = f"[bold white]{code.get_text()}[/]"
+
             for a in tag("a"):
                 href = str(a["href"])
                 text = a.string
+
                 if href != text:
                     a.name = "p"
                     if href.startswith("/title"):
                         href = cls._url_from_parts([cls.root_url, href])
+
                     text = f"[bold color(249)]{text}[/]"
+                    # do we follow link text with url?
                     if cls.show_url:
                         text += rf" \[[#515478]{href}[/]]"
                         if len(text) < console.width:
                             text = text.replace(" ", "_")
+
                     a.string = text
+
             if "mw-heading" in tag.get_attribute_list("class"):
-                console.rule(f"[color(73)]{tag.get_text()}[/]")
+                style = "white"
+                console.rule(f"[{style}]{tag.get_text()}[/]", style=style)
+
             elif "archwiki-template-box" in tag.get_attribute_list("class"):
                 text = tag.strong.extract().get_text()  # type: ignore
                 color = "bold"
+
                 if text == "Tip":
                     color += " green"
                 elif text == "Note":
                     color += " blue"
                 elif text == "Warning":
                     color += " yellow"
+
                 cls._print_text(f"[{color}]{text}:[/]{tag.get_text()}\n")
+
             elif "archwiki-template-message" in tag.get_attribute_list(
                 "class"
             ):
                 cls._print_text(tag.get_text())
+
             elif tag.name == "div":
                 cls._parse_section(tag)
+
             elif tag.name == "table":
                 caption = tag.find("caption")
                 title = caption.get_text() if caption else None
                 table = Table(title=title, highlight=True)
+
                 rows = tag("tr")
                 if not rows:
                     continue
+
                 for column in rows[0]("th"):
+                    # should we also handle rowspan?
                     colspan = column.get("colspan")
                     coltext = column.get_text()
                     if colspan is not None:
@@ -290,18 +314,24 @@ class Toc:
                             table.add_column(coltext)
                     else:
                         table.add_column(coltext)
+
                 for row in rows[1:]:
                     entries = []
+
                     for column in row(re.compile("t[dh]")):
                         colspan = column.get("colspan")
                         coltext = column.get_text()
+
                         if colspan is not None:
                             for _ in range(int(str(colspan))):
                                 entries.append(f"[underline]{coltext}[/]")
                         else:
                             entries.append(coltext)
+
                     table.add_row(*entries)
+
                 console.print(table)
+
             else:
                 cls._print_text(tag.get_text())
 
@@ -332,6 +362,7 @@ class Toc:
             "profile": "default",
             "fulltext": "1",
         }
+
         try:
             with self.toc_session.get(
                 self._url_from_parts([self.root_url, "index.php"]),
@@ -340,6 +371,7 @@ class Toc:
             ) as r:
                 r.raise_for_status()
                 soup = BeautifulSoup(r.text, "lxml")
+
         except requests.exceptions.RequestException as e:
             self.toc_session.close()
             sys.exit(f"{e}")
