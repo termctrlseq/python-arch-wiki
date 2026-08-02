@@ -219,7 +219,7 @@ class Toc:
         return subsection.articles
 
     @staticmethod
-    def _print_text(text: str) -> None:
+    def _console_print(text: str) -> None:
         # Command
         text = re.sub(
             r"(^|:\s)([#\$])(\s\S+)(.*)",
@@ -287,12 +287,12 @@ class Toc:
                 elif text == "Warning":
                     color += " yellow"
 
-                cls._print_text(f"[{color}]{text}:[/]{tag.get_text()}\n")
+                cls._console_print(f"[{color}]{text}:[/]{tag.get_text()}\n")
 
             elif "archwiki-template-message" in tag.get_attribute_list(
                 "class"
             ):
-                cls._print_text(tag.get_text())
+                cls._console_print(tag.get_text())
 
             elif tag.name == "div":
                 cls._parse_section(tag)
@@ -316,10 +316,11 @@ class Toc:
                     else:
                         table.add_column(coltext)
 
+                rgx = re.compile("t[dh]")
                 for row in rows[1:]:
                     entries = []
 
-                    for column in row(re.compile("t[dh]")):
+                    for column in row(rgx):
                         colspan = column.get("colspan")
                         coltext = column.get_text()
 
@@ -334,7 +335,7 @@ class Toc:
                 console.print(table)
 
             else:
-                cls._print_text(tag.get_text())
+                cls._console_print(tag.get_text())
 
     @classmethod
     def display_contents(cls, href: str) -> None:
