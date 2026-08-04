@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import sys
@@ -14,6 +15,8 @@ from rich.table import Table
 console = Console(style="color(248)")
 # set less as the pager
 os.environ["MANPAGER"] = "less --raw-control-chars --mouse"
+
+logger = logging.getLogger(__name__)
 
 
 class Toc:
@@ -68,6 +71,7 @@ class Toc:
                     continue
                 except requests.exceptions.RequestException as e:
                     self.close()
+                    logger.error(f"{e}")
                     sys.exit(f"{e}")
 
         if isinstance(section, tuple):
@@ -214,6 +218,7 @@ class Toc:
 
             except requests.exceptions.RequestException as e:
                 self.close()
+                logger.error(f"{e}")
                 sys.exit(f"{e}")
 
         return subsection.articles
@@ -350,12 +355,13 @@ class Toc:
 
         except requests.exceptions.RequestException as e:
             cls.toc_session.close()
+            logger.error(f"{e}")
             sys.exit(f"{e}")
 
         with console.pager(styles=True):
             cls._parse_section(soup.select_one("#bodyContent"))
 
-    def search(self, text: str) -> list:
+    def search(self, text: str) -> list | None:
         """Search arch wiki."""
         search_text = text.strip().replace(" ", "+")
         payload = {
@@ -375,8 +381,8 @@ class Toc:
                 soup = BeautifulSoup(r.text, "lxml")
 
         except requests.exceptions.RequestException as e:
-            self.close()
-            sys.exit(f"{e}")
+            logger.error(f"{e}")
+            return
 
         results = []
         for tag in soup.select(".mw-search-result"):

@@ -3,9 +3,9 @@ __pycache__/
 *.py[oc]
 build/
 dist/
+logs/
 wheels/
 *.egg-info
-*.log
 
 # Virtual environments
 .venv
