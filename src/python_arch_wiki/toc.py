@@ -67,7 +67,7 @@ class Toc:
                     time.sleep(0.5 * (i + 1))
                     continue
                 except requests.exceptions.RequestException as e:
-                    self.toc_session.close()
+                    self.close()
                     sys.exit(f"{e}")
 
         if isinstance(section, tuple):
@@ -213,7 +213,7 @@ class Toc:
                             )
 
             except requests.exceptions.RequestException as e:
-                self.toc_session.close()
+                self.close()
                 sys.exit(f"{e}")
 
         return subsection.articles
@@ -375,7 +375,7 @@ class Toc:
                 soup = BeautifulSoup(r.text, "lxml")
 
         except requests.exceptions.RequestException as e:
-            self.toc_session.close()
+            self.close()
             sys.exit(f"{e}")
 
         results = []
