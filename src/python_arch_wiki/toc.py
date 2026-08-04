@@ -24,7 +24,7 @@ class Toc:
 
     root_url = "https://wiki.archlinux.org"
     toc_session = requests.Session()
-    show_url = True
+    link_url: bool | None = None
 
     section: tuple | None
     title: str
@@ -40,8 +40,12 @@ class Toc:
         | tuple[tuple[int, ...] | None, str, str, int]
         | None = None,
         folded=True,
+        link_url=False,
     ) -> None:
         """Initialize Toc section."""
+        if type(self).link_url is None:
+            type(self).link_url = link_url
+
         self.subsections = []
         self.articles = []
 
@@ -270,7 +274,7 @@ class Toc:
                     # do we follow link with url?
                     text_len = len(text)
                     href_len = len(href)
-                    if cls.show_url and href.startswith("http"):
+                    if cls.link_url and href.startswith("http"):
                         text += rf" \[[#515478]{href}[/]]"
                         if text_len + href_len < console.width:
                             text = text.replace(" ", "[#515478]_[/]")

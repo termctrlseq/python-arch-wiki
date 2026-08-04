@@ -8,8 +8,10 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "autocommand>=2.2.2",
     "bs4>=0.0.2",
     "lxml>=6.0.2",
+    "platformdirs>=4.11.0",
     "requests>=2.32.5",
     "rich>=14.2.0",
 ]
