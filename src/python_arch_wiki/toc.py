@@ -36,9 +36,7 @@ class Toc:
 
     def __init__(
         self,
-        section: Tag
-        | tuple[tuple[int, ...] | None, str, str, int]
-        | None = None,
+        section: Tag | tuple[tuple[int, ...] | None, str, str, int] | None = None,
         folded=True,
         link_url=False,
     ) -> None:
@@ -81,8 +79,8 @@ class Toc:
         if isinstance(section, tuple):
             self.section, self.title, self.href, self.num_articles = section
         elif isinstance(section, Tag):
-            self.section, self.title, self.href, self.num_articles = (
-                self.parse_tag(section)
+            self.section, self.title, self.href, self.num_articles = self.parse_tag(
+                section
             )
 
         self.folded = folded if self.section else False
@@ -103,9 +101,7 @@ class Toc:
 
         parent.subsections.append(Toc(subsection, folded=folded))
 
-    def parse_tag(
-        self, trtag: Tag
-    ) -> tuple[tuple[int, ...] | None, str, str, int]:
+    def parse_tag(self, trtag: Tag) -> tuple[tuple[int, ...] | None, str, str, int]:
         """Extract section info from tr tag into a tuple."""
         atag = trtag.find("a") if trtag else None
         if atag is None:
@@ -154,8 +150,7 @@ class Toc:
 
         if section.section:
             section_str = (
-                f"{' ' * 4 * (len(section.section) - 1)}"
-                f"{section.section[-1]:>2}. "
+                f"{' ' * 4 * (len(section.section) - 1)}{section.section[-1]:>2}. "
             )
 
             if section.num_articles:
@@ -216,9 +211,7 @@ class Toc:
                     categories = soup.select_one(".mw-category")
                     if categories:
                         for atag in categories.select("a"):
-                            subsection.articles.append(
-                                [atag["href"], atag["title"]]
-                            )
+                            subsection.articles.append([atag["href"], atag["title"]])
 
             except requests.exceptions.RequestException as e:
                 self.close()
@@ -243,6 +236,23 @@ class Toc:
             text,
         )
         console.print(text)
+
+    @staticmethod
+    def get_row_entries(row: Tag) -> list[str]:
+        entries = []
+        rgx = re.compile("t[dh]")
+
+        for col in row(rgx):
+            colspan = col.get("colspan")
+            coltext = col.get_text()
+
+            if colspan is None:
+                entries.append(coltext)
+            else:
+                for _ in range(int(str(colspan))):
+                    entries.append(f"[underline]{coltext}[/]")
+
+        return entries
 
     @classmethod
     def _parse_section(cls, section: Tag | None) -> None:
@@ -298,9 +308,7 @@ class Toc:
 
                 cls._console_print(f"[{color}]{text}:[/]{tag.get_text()}\n")
 
-            elif "archwiki-template-message" in tag.get_attribute_list(
-                "class"
-            ):
+            elif "archwiki-template-message" in tag.get_attribute_list("class"):
                 cls._console_print(tag.get_text())
 
             elif tag.name == "div":
@@ -315,31 +323,11 @@ class Toc:
                 if not rows:
                     continue
 
-                for column in rows[0]("th"):
-                    # should we also handle rowspan?
-                    colspan = column.get("colspan")
-                    coltext = column.get_text()
-                    if colspan is not None:
-                        for _ in range(int(str(colspan))):
-                            table.add_column(coltext)
-                    else:
-                        table.add_column(coltext)
+                for entry in cls.get_row_entries(rows[0]):
+                    table.add_column(entry)
 
-                rgx = re.compile("t[dh]")
                 for row in rows[1:]:
-                    entries = []
-
-                    for column in row(rgx):
-                        colspan = column.get("colspan")
-                        coltext = column.get_text()
-
-                        if colspan is not None:
-                            for _ in range(int(str(colspan))):
-                                entries.append(f"[underline]{coltext}[/]")
-                        else:
-                            entries.append(coltext)
-
-                    table.add_row(*entries)
+                    table.add_row(*cls.get_row_entries(row))
 
                 console.print(table)
 
