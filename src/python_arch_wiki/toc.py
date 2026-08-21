@@ -239,6 +239,7 @@ class Toc:
 
     @staticmethod
     def get_row_entries(row: Tag) -> list[str]:
+        """Get list of strings from table row tag."""
         entries = []
         rgx = re.compile("t[dh]")
 
