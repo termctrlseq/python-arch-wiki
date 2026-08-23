@@ -307,10 +307,6 @@ class Toc:
             if tag.name is None:
                 continue
 
-            if tag.string:
-                # otherwise [zram0] et al. will not print
-                tag.string = escape(tag.string)
-
             for code in tag("code"):
                 code.string = f"[bold white]{code.get_text()}[/]"
 
@@ -390,7 +386,7 @@ class Toc:
                 timeout=1,
             ) as r:
                 r.raise_for_status()
-                soup = BeautifulSoup(r.text, "lxml")
+                soup = BeautifulSoup(escape(r.text), "lxml")
 
         except requests.exceptions.RequestException as e:
             cls.toc_session.close()
