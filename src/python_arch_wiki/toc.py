@@ -349,6 +349,9 @@ class Toc:
             elif "archwiki-template-message" in tag.get_attribute_list("class"):
                 cls._console_print(tag.get_text())
 
+            elif "mw-hidden-catlinks" in tag.get_attribute_list("class"):
+                continue
+
             elif tag.name == "div":
                 cls._parse_section(tag)
 
