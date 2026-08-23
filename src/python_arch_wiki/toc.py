@@ -315,7 +315,7 @@ class Toc:
                 code.string = f"[bold white]{code.get_text()}[/]"
 
             for a in tag("a"):
-                href = str(a["href"])
+                href = str(a.get("href"))
                 text = a.string
 
                 if text and href != text:
