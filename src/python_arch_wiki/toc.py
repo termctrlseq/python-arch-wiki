@@ -337,21 +337,29 @@ class Toc:
                     a.string = f"[bold color(251)]{text}[/]"
 
             if "mw-heading" in tag.get_attribute_list("class"):
-                style = "white"
-                console.rule(f"[{style}]{tag.get_text()}[/]", style=style)
+                console.rule(
+                    f"[white]{tag.get_text()}[/]", style="bright_black"
+                )
 
             elif "archwiki-template-box" in tag.get_attribute_list("class"):
-                text = tag.strong.extract().get_text()  # type: ignore
-                color = "bold"
+                strong: Tag | str | None = tag.find("strong")
+                if strong:
+                    strong = strong.extract().get_text()
+                    color = "bold"
 
-                if text == "Tip":
-                    color += " green"
-                elif text == "Note":
-                    color += " blue"
-                elif text == "Warning":
-                    color += " yellow"
+                    match strong.lower():
+                        case "tip":
+                            color += " green"
+                        case "note":
+                            color += " blue"
+                        case "warning":
+                            color += " yellow"
 
-                cls._console_print(f"[{color}]{text}:[/]{tag.get_text()}\n")
+                    cls._console_print(
+                        f"[{color}]{strong}:[/]{tag.get_text()}\n"
+                    )
+                else:
+                    cls._console_print(tag.get_text())
 
             elif "archwiki-template-message" in tag.get_attribute_list(
                 "class"
@@ -368,7 +376,7 @@ class Toc:
                 caption = tag.find("caption")
                 title = caption.get_text() if caption else None
                 table = Table(
-                    title=title,  # type: ignore
+                    title=title,
                     box=box.ROUNDED,
                     highlight=True,
                     show_lines=True,
