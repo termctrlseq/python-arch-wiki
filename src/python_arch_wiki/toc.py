@@ -37,7 +37,9 @@ class Toc:
 
     def __init__(
         self,
-        section: Tag | tuple[tuple[int, ...] | None, str, str, int] | None = None,
+        section: Tag
+        | tuple[tuple[int, ...] | None, str, str, int]
+        | None = None,
         folded=True,
         link_url=False,
     ) -> None:
@@ -80,8 +82,8 @@ class Toc:
         if isinstance(section, tuple):
             self.section, self.title, self.href, self.num_articles = section
         elif isinstance(section, Tag):
-            self.section, self.title, self.href, self.num_articles = self.parse_tag(
-                section
+            self.section, self.title, self.href, self.num_articles = (
+                self.parse_tag(section)
             )
 
         self.folded = folded if self.section else False
@@ -102,7 +104,9 @@ class Toc:
 
         parent.subsections.append(Toc(subsection, folded=folded))
 
-    def parse_tag(self, trtag: Tag) -> tuple[tuple[int, ...] | None, str, str, int]:
+    def parse_tag(
+        self, trtag: Tag
+    ) -> tuple[tuple[int, ...] | None, str, str, int]:
         """Extract section info from tr tag into a tuple."""
         atag = trtag.find("a") if trtag else None
         if atag is None:
@@ -151,7 +155,8 @@ class Toc:
 
         if section.section:
             section_str = (
-                f"{' ' * 4 * (len(section.section) - 1)}{section.section[-1]:>2}. "
+                f"{' ' * 4 * (len(section.section) - 1)}"
+                f"{section.section[-1]:>2}. "
             )
 
             if section.num_articles:
@@ -212,7 +217,9 @@ class Toc:
                     categories = soup.select_one(".mw-category")
                     if categories:
                         for atag in categories.select("a"):
-                            subsection.articles.append([atag["href"], atag["title"]])
+                            subsection.articles.append(
+                                [atag["href"], atag["title"]]
+                            )
 
             except requests.exceptions.RequestException as e:
                 self.close()
@@ -346,7 +353,9 @@ class Toc:
 
                 cls._console_print(f"[{color}]{text}:[/]{tag.get_text()}\n")
 
-            elif "archwiki-template-message" in tag.get_attribute_list("class"):
+            elif "archwiki-template-message" in tag.get_attribute_list(
+                "class"
+            ):
                 cls._console_print(tag.get_text())
 
             elif "mw-hidden-catlinks" in tag.get_attribute_list("class"):
