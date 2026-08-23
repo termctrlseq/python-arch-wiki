@@ -7,6 +7,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
+from rich import box
 from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
@@ -238,22 +239,62 @@ class Toc:
         console.print(text)
 
     @staticmethod
-    def get_row_entries(row: Tag) -> list[str]:
-        """Get list of strings from table row tag."""
-        entries = []
+    def get_table_rows(rows: list[Tag]) -> list[list[str]] | None:
+        nrows = len(rows)
+        if nrows == 0:
+            return None
+
+        lst = [[] for n in range(nrows)]
         rgx = re.compile("t[dh]")
 
-        for col in row(rgx):
+        for col in rows[0](rgx):
             colspan = col.get("colspan")
             coltext = col.get_text()
+            rowspan = col.get("rowspan")
+            if rowspan is not None:
+                rowspan = int(str(rowspan)) - 1
 
             if colspan is None:
-                entries.append(coltext)
+                lst[0].append(coltext)
+                for row in lst[1:]:
+                    if rowspan:
+                        row.append("")
+                        rowspan -= 1
+                    else:
+                        row.append(None)
             else:
                 for _ in range(int(str(colspan))):
-                    entries.append(f"[underline]{coltext}[/]")
+                    lst[0].append(f"[underline]{coltext}[/]")
+                    for row in lst[1:]:
+                        if rowspan:
+                            row.append("")
+                            rowspan -= 1
+                        else:
+                            row.append(None)
 
-        return entries
+        for i, row in enumerate(rows[1:]):
+            for j, col in enumerate(row(rgx)):
+                colspan = col.get("colspan")
+                coltext = col.get_text()
+                rowspan = col.get("rowspan")
+                rowspan = 1 if rowspan is None else int(str(rowspan))
+
+                while lst[i + 1][j] is not None:
+                    j += 1
+
+                if colspan is None:
+                    for n in range(rowspan):
+                        lst[i + 1 + n][j] = coltext if n == 0 else ""
+                else:
+                    j -= 1
+                    for _ in range(int(str(colspan))):
+                        j += 1
+                        for n in range(rowspan):
+                            lst[i + 1 + n][j] = (
+                                f"[underline]{coltext}[/]" if n == 0 else ""
+                            )
+
+        return lst
 
     @classmethod
     def _parse_section(cls, section: Tag | None) -> None:
@@ -318,17 +359,22 @@ class Toc:
             elif tag.name == "table":
                 caption = tag.find("caption")
                 title = caption.get_text() if caption else None
-                table = Table(title=title, highlight=True)
+                table = Table(
+                    title=title,  # type: ignore
+                    box=box.ROUNDED,
+                    highlight=True,
+                    show_lines=True,
+                )
 
-                rows = tag("tr")
+                rows = cls.get_table_rows(tag("tr"))
                 if not rows:
+                    logger.warning(f"Empty table: {tag}")
                     continue
 
-                for entry in cls.get_row_entries(rows[0]):
-                    table.add_column(entry)
-
+                for col in rows[0]:
+                    table.add_column(col)
                 for row in rows[1:]:
-                    table.add_row(*cls.get_row_entries(row))
+                    table.add_row(*row)
 
                 console.print(table)
 
