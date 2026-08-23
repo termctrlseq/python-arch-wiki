@@ -246,15 +246,15 @@ class Toc:
         console.print(text)
 
     @staticmethod
-    def get_table_rows(rows: list[Tag]) -> list[list[str]] | None:
-        nrows = len(rows)
+    def get_table_rows(tr_list: list[Tag]) -> list[list[str]] | None:
+        nrows = len(tr_list)
         if nrows == 0:
             return None
 
-        lst = [[] for n in range(nrows)]
+        rows = [[] for _ in range(nrows)]
         rgx = re.compile("t[dh]")
 
-        for col in rows[0](rgx):
+        for col in tr_list[0](rgx):
             colspan = col.get("colspan")
             coltext = col.get_text()
             rowspan = col.get("rowspan")
@@ -262,8 +262,8 @@ class Toc:
                 rowspan = int(str(rowspan)) - 1
 
             if colspan is None:
-                lst[0].append(coltext)
-                for row in lst[1:]:
+                rows[0].append(coltext)
+                for row in rows[1:]:
                     if rowspan:
                         row.append("")
                         rowspan -= 1
@@ -271,37 +271,37 @@ class Toc:
                         row.append(None)
             else:
                 for _ in range(int(str(colspan))):
-                    lst[0].append(f"[underline]{coltext}[/]")
-                    for row in lst[1:]:
+                    rows[0].append(f"[underline]{coltext}[/]")
+                    for row in rows[1:]:
                         if rowspan:
                             row.append("")
                             rowspan -= 1
                         else:
                             row.append(None)
 
-        for i, row in enumerate(rows[1:]):
+        for i, row in enumerate(tr_list[1:]):
             for j, col in enumerate(row(rgx)):
                 colspan = col.get("colspan")
                 coltext = col.get_text()
                 rowspan = col.get("rowspan")
                 rowspan = 1 if rowspan is None else int(str(rowspan))
 
-                while lst[i + 1][j] is not None:
+                while rows[i + 1][j] is not None:
                     j += 1
 
                 if colspan is None:
                     for n in range(rowspan):
-                        lst[i + 1 + n][j] = coltext if n == 0 else ""
+                        rows[i + 1 + n][j] = coltext if n == 0 else ""
                 else:
                     j -= 1
                     for _ in range(int(str(colspan))):
                         j += 1
                         for n in range(rowspan):
-                            lst[i + 1 + n][j] = (
+                            rows[i + 1 + n][j] = (
                                 f"[underline]{coltext}[/]" if n == 0 else ""
                             )
 
-        return lst
+        return rows
 
     @classmethod
     def _parse_section(cls, section: Tag | None) -> None:
