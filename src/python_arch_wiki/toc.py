@@ -183,8 +183,8 @@ class Toc:
         return toc_list
 
     def __iter__(self):
-        """Return Toc generator."""
-        yield from self.get_entries()
+        """Return Toc iterator."""
+        return iter(self.get_entries())
 
     def fold(self, section: tuple[int] | str) -> None:
         """Toggle displaying subsections."""
