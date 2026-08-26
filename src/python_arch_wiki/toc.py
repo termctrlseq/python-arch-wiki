@@ -251,6 +251,7 @@ class Toc:
 
     @staticmethod
     def get_table_rows(tr_list: list[Tag]) -> list[list[str]] | None:
+        """Return a list of lists (rows) of strings (cols)."""
         nrows = len(tr_list)
         if nrows == 0:
             return None
@@ -260,10 +261,9 @@ class Toc:
 
         for col in tr_list[0](rgx):
             colspan = col.get("colspan")
-            coltext = col.get_text()
             rowspan = col.get("rowspan")
-            if rowspan is not None:
-                rowspan = int(str(rowspan)) - 1
+            coltext = col.get_text()
+            rowspan = rowspan if rowspan is None else int(str(rowspan)) - 1
 
             if colspan is None:
                 rows[0].append(coltext)
@@ -286,8 +286,8 @@ class Toc:
         for i, row in enumerate(tr_list[1:]):
             for j, col in enumerate(row(rgx)):
                 colspan = col.get("colspan")
-                coltext = col.get_text()
                 rowspan = col.get("rowspan")
+                coltext = col.get_text()
                 rowspan = 1 if rowspan is None else int(str(rowspan))
 
                 while rows[i + 1][j] is not None:
