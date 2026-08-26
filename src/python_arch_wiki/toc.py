@@ -50,8 +50,8 @@ class Toc:
         self.subsections = []
         self.articles = []
 
-        if not section:
-            for i in range(3):
+        if section is None:
+            for i in range(5):
                 try:
                     r = self.toc_session.get(
                         self._url_from_parts(
@@ -86,7 +86,7 @@ class Toc:
                 self.parse_tag(section)
             )
 
-        self.folded = folded if self.section else False
+        self.folded = False if self.section is None else folded
 
     def close(self) -> None:
         """Close session."""
