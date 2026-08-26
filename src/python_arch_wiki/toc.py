@@ -309,7 +309,7 @@ class Toc:
 
     @classmethod
     def _parse_section(cls, section: Tag | None) -> None:
-        """Print tag contents."""
+        """Extract text from tags and apply formatting."""
         if section is None:
             return
 
@@ -319,6 +319,7 @@ class Toc:
                 continue
 
             for code in tag("code"):
+                code.name = "p"
                 code.string = f"[bold white]{code.get_text()}[/]"
 
             for a in tag("a"):
