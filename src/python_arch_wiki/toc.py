@@ -216,9 +216,9 @@ class Toc:
                     soup = BeautifulSoup(r.text, "lxml")
                     categories = soup.select_one(".mw-category")
                     if categories:
-                        for atag in categories.select("a"):
+                        for a in categories.select("a"):
                             subsection.articles.append(
-                                [atag["href"], atag["title"]]
+                                [a["href"], a["title"]]
                             )
 
             except requests.exceptions.RequestException as e:
