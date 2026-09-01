@@ -29,4 +29,46 @@ build-backend = "uv_build"
 "extraPaths" = "/home/anton/Code"
 "pythonPlatform" = "Linux"
 "typeCheckingMode" = "standard"
-"analyzeUnannotatedFunctions" = "true"
+
+[tool.ruff]
+line-length = 78
+# Enumerate all fixed violations.
+show-fixes = true
+unsafe-fixes = true
+
+[tool.ruff.lint]
+select = [
+  # flake8-annotations
+  # "ANN",
+  # flake8-bugbear
+  "B",
+  # flake8-builtins
+  "A",
+  # flake8-executable
+  "EXE",
+  # flake4-pie
+  "PIE",
+  # flake8-symplify
+  "SIM",
+  # flake8-type-checking
+  # "TC",
+  # flake8-unused-arguments
+  "ARG",
+  # isort
+  "I",
+  # pep8-naming
+  "N",
+  # pycodestyle
+  "E",
+  "W",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # Pylint
+  "PLE",
+]
+ignore = [
+  # line-too-long
+  # "E501",
+]
