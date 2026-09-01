@@ -9,7 +9,7 @@ from subprocess import run
 logger = logging.getLogger(__name__)
 
 
-class EditError(Exception):
+class EditCancelledError(Exception):
     pass
 
 
@@ -290,8 +290,7 @@ class CursesMenu:
     @staticmethod
     def validator(ch):
         if ch == 27:
-            raise EditError
-
+            raise EditCancelledError
         return ch
 
     def _search(self):
@@ -314,7 +313,7 @@ class CursesMenu:
 
         try:
             box.edit(self.validator)
-        except EditError:
+        except EditCancelledError:
             return
         finally:
             curses.curs_set(0)
