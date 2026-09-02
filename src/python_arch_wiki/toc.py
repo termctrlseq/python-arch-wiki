@@ -235,10 +235,10 @@ class Toc:
         """Add escape sequences and print."""
         text = re.sub(  # Command highlight
             r"""
-                (^|:\s) # 1) start of the line or colon space
-                ([#\$]) # 2) hash or dollar
-                (\s\S+) # 3) space; one or more of not a space
-                (.*)    # 4) rest of the line
+                (^|:\s)         # 1) start of the line or colon space
+                ([#\$])         # 2) hash or dollar
+                (\s[a-z]\S*)    # 3) space, letter, one or more of not a space
+                (.*)            # 4) rest of the line
             """,
             r"\1[bold][green]\2[/][bright_white]\3[/]\4[/]",
             text,
