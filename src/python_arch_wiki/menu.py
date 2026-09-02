@@ -15,20 +15,21 @@ class EditCancelledError(Exception):
 
 class CursesMenu:
     def __init__(self, menu) -> None:
-        self._width, self._height = os.get_terminal_size()
+        self._start_curses()
         self.menu = menu
         self.contents = [
             [line] if isinstance(line, str) else line for line in self.menu
         ]
         self._selected = 0
         self._start_idx = 0
-        self._stop_idx = self._start_idx + self._height
         self._saved_state = None
-        self._start_curses()
+        try:
+            self._width, self._height = os.get_terminal_size()
+        except OSError:
+            self._height, self._width = self._stdscr.getmaxyx()
 
     def _start_curses(self) -> None:
         try:
-            run("reset")
             self._stdscr = curses.initscr()
             curses.noecho()
             curses.cbreak()
@@ -43,8 +44,8 @@ class CursesMenu:
                 signal.SIGWINCH, self._signal_win_resize
             )
 
-        except Exception as e:
-            run("reset")
+        except curses.error as e:
+            run("reset", check=False)
             sys.exit(f"{e}")
 
     def _end_curses(self) -> None:
