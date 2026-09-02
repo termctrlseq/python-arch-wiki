@@ -152,7 +152,7 @@ class CursesMenu:
             self._save_state()
             self.contents = self.menu.get_submenu(selected)
 
-        elif hasattr(self.menu, "display_contents"):
+        else:
             self._end_curses()
             self.menu.display_contents(selected)
             self._start_curses()
