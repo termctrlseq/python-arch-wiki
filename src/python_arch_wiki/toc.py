@@ -203,6 +203,7 @@ class Toc:
 
     def get_submenu(self, section: Section) -> list[Article]:
         """Return list of articles."""
+        assert section, "Valid section required"
         subsection = self
         for i in section:
             subsection = subsection.subsections[i - 1]
@@ -220,7 +221,7 @@ class Toc:
                     if categories:
                         for a in categories.select("a"):
                             subsection.articles.append(
-                                [a["href"], a["title"]]
+                                (str(a["href"]), str(a["title"]))
                             )
 
             except requests.exceptions.RequestException as e:
