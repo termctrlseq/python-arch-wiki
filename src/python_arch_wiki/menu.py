@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 import sys
+from collections import deque
 from curses.textpad import Textbox, rectangle
 from subprocess import run
 
@@ -22,7 +23,7 @@ class CursesMenu:
         ]
         self._selected = 0
         self._start_idx = 0
-        self._saved_state = None
+        self._saved_state = deque(maxlen=2)
         try:
             self._width, self._height = os.get_terminal_size()
         except OSError:
@@ -129,11 +130,14 @@ class CursesMenu:
         else:
             self.menu.fold(section)
 
-        self.contents = [
-            [line] if isinstance(line, str) else line for line in self.menu
-        ]
+        if len(self._saved_state) > 0:
+            self._restore_state()
+        else:
+            self.contents = [
+                [line] if isinstance(line, str) else line
+                for line in self.menu
+            ]
 
-        self._restore_state()
         self._adjust_idx()
 
     def _get_contents(self) -> None:
@@ -253,14 +257,17 @@ class CursesMenu:
         self.display_menu()
 
     def _save_state(self):
-        self._saved_state = self._start_idx, self._selected
+        self._saved_state.append(
+            (self._start_idx, self._selected, self.contents.copy())
+        )
         self._start_idx = 0
         self._selected = 0
 
     def _restore_state(self):
-        if self._saved_state:
-            self._start_idx, self._selected = self._saved_state
-            self._saved_state = None
+        if len(self._saved_state) > 0:
+            self._start_idx, self._selected, self.contents = (
+                self._saved_state.pop()
+            )
 
     @staticmethod
     def validator(ch):
