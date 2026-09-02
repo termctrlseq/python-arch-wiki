@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import time
+from collections.abc import Iterator
 
 import requests
 from bs4 import BeautifulSoup
@@ -27,19 +28,22 @@ class Toc:
     toc_session = requests.Session()
     link_url: bool | None = None
 
-    section: tuple | None
+    Section = tuple[int, ...] | None
+    TocItem = tuple[Section, str, str, int]
+    MenuItem = tuple[Section, str]
+    Article = tuple[str, str]
+
+    section: Section
     title: str
     href: str
-    articles: list
+    articles: list[Article]
     num_articles: int
     subsections: list["Toc"]
     folded: bool
 
     def __init__(
         self,
-        section: Tag
-        | tuple[tuple[int, ...] | None, str, str, int]
-        | None = None,
+        section: Tag | TocItem | None = None,
         folded=True,
         link_url=False,
     ) -> None:
@@ -92,7 +96,7 @@ class Toc:
         """Close session."""
         self.toc_session.close()
 
-    def add_subsection(self, tag, folded=False) -> None:
+    def add_subsection(self, tag: Tag, folded: bool = False) -> None:
         """Add a subsection to table of contents."""
         subsection = self.parse_tag(tag)
         assert subsection[0], "Can not add subsection without section"
@@ -104,9 +108,7 @@ class Toc:
 
         parent.subsections.append(Toc(subsection, folded=folded))
 
-    def parse_tag(
-        self, trtag: Tag
-    ) -> tuple[tuple[int, ...] | None, str, str, int]:
+    def parse_tag(self, trtag: Tag) -> TocItem:
         """Extract section info from tr tag into a tuple."""
         atag = trtag.find("a") if trtag else None
         if atag is None:
@@ -145,8 +147,8 @@ class Toc:
     def get_entries(
         self,
         section: "Toc | None" = None,
-        toc_list: list[tuple[tuple, str]] | None = None,
-    ) -> list[tuple[tuple, str]]:
+        toc_list: list[MenuItem] | None = None,
+    ) -> list[MenuItem]:
         """Return a list of section/title tuples."""
         if section is None:
             section = self
@@ -182,11 +184,11 @@ class Toc:
 
         return toc_list
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[MenuItem]:
         """Return Toc iterator."""
         return iter(self.get_entries())
 
-    def fold(self, section: tuple[int] | str) -> None:
+    def fold(self, section: Section) -> None:
         """Toggle displaying subsections."""
 
         if isinstance(section, tuple):
@@ -199,7 +201,7 @@ class Toc:
     def _url_from_parts(parts: list) -> str:
         return "/".join(part.strip("/") for part in parts)
 
-    def get_submenu(self, section: tuple[int, ...]) -> list:
+    def get_submenu(self, section: Section) -> list[Article]:
         """Return list of articles."""
         subsection = self
         for i in section:
@@ -421,7 +423,7 @@ class Toc:
         with console.pager(styles=True):
             cls._parse_section(soup.select_one("#bodyContent"))
 
-    def search(self, text: str) -> list | None:
+    def search(self, text: str) -> list[Article]:
         """Search arch wiki."""
         search_text = text.strip().replace(" ", "+")
         payload = {
