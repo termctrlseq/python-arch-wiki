@@ -153,7 +153,7 @@ class CursesMenu:
             self.menu.display_contents(selected)
             self._start_curses()
 
-    def handle_input(self) -> str | tuple | None:
+    def handle_input(self) -> int | None:
         """Handle keyboard and mouse events."""
         key = self._stdscr.getch()
 
@@ -191,7 +191,7 @@ class CursesMenu:
 
         # Ctrl-d, q
         elif key in [4, ord("q")]:
-            sys.exit()
+            return 1
 
         # slash or question
         elif key in [ord("/"), ord("?")]:

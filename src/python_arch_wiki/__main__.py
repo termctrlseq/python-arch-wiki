@@ -15,9 +15,10 @@ def run(args, link_url) -> None:
         toc.display_contents(article)
     else:
         with CursesMenu(toc) as menu:
-            while True:
+            result = None
+            while result is None:
                 menu.display_menu()
-                menu.handle_input()
+                result = menu.handle_input()
 
     toc.close()
 
