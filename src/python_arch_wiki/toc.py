@@ -110,17 +110,17 @@ class Toc:
 
     def parse_tag(self, trtag: Tag) -> TocItem:
         """Extract section info from tr tag into a tuple."""
-        atag = trtag.find("a") if trtag else None
-        if atag is None:
+        a = trtag.find("a") if trtag else None
+        if a is None:
             raise ValueError("'a' tag not found")
 
-        title = atag.string
-        href = str(atag["href"])
+        title = a.get_text()
+        href = str(a["href"])
 
         try:
             section = tuple(
                 int(x)
-                for x in atag.find_previous_sibling("small")
+                for x in a.find_previous_sibling("small")
                 .get_text()  # type: ignore
                 .strip(".")
                 .split(".")
@@ -131,7 +131,7 @@ class Toc:
 
         try:
             num_articles = int(
-                atag.find_next_sibling("small")
+                a.find_next_sibling("small")
                 .get_text()  # type: ignore
                 .strip("()")
             )
@@ -140,7 +140,7 @@ class Toc:
             num_articles = 0
 
         if not title or not href:
-            raise ValueError(f"Failed to parse tag: {atag}")
+            raise ValueError(f"Failed to parse tag: {a}")
         else:
             return section, title, href, num_articles
 
