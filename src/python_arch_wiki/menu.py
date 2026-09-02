@@ -66,7 +66,7 @@ class CursesMenu:
     def display_menu(self) -> None:
         """Display menu."""
         for i, item in enumerate(
-            self.contents[self._start_idx : self._stop_idx],
+            self.contents[self._start_idx : self._start_idx + self._height],
             start=self._start_idx,
         ):
             if i == self._selected:
@@ -80,23 +80,40 @@ class CursesMenu:
         self._stdscr.clrtobot()
         self._stdscr.refresh()
 
+    def _adjust_idx(self) -> None:
+        assert self._selected >= 0, "Selected can not be negative"
+        contents_len = len(self.contents)
+        if contents_len == 0:
+            return
+
+        self._selected = min(self._selected, contents_len - 1)
+
+        # window is bigger than the whole menu contents
+        if self._height >= contents_len:
+            self._start_idx = 0
+
+        # selected item is at the bottom of the screen
+        if self._selected >= self._start_idx + self._height:
+            self._start_idx += 1
+
+        self._start_idx = min(
+            self._start_idx, self._selected, contents_len - self._height
+        )
+        self._start_idx = max(
+            0, self._start_idx, self._selected - self._height
+        )
+
     def _previous(self) -> None:
         if self._selected > 0:
             self._selected -= 1
 
-            if self._selected < self._start_idx:
-                self._start_idx -= 1
-                self._stop_idx -= 1
+        self._adjust_idx()
 
     def _next(self) -> None:
         if self._selected < len(self.contents) - 1:
             self._selected += 1
 
-            if self._selected > self._stop_idx - 1 and self._stop_idx < len(
-                self.contents
-            ):
-                self._start_idx += 1
-                self._stop_idx += 1
+        self._adjust_idx()
 
     def _fold(self, up_level: bool = False) -> None:
         """(Un)fold submenu."""
@@ -115,8 +132,6 @@ class CursesMenu:
             else:
                 self.menu.fold(section)
 
-            old_contents_len = len(self.contents)
-
             self.contents = [
                 [line] if isinstance(line, str) else line
                 for line in self.menu
@@ -125,34 +140,9 @@ class CursesMenu:
             self._restore_state()
 
             contents_len = len(self.contents)
-            if self._selected > contents_len - 1:
-                self._selected = contents_len - 1
+            self._selected = min(self._selected, contents_len - 1)
 
-            if contents_len > old_contents_len:
-                self._stop_idx += max(
-                    0,
-                    contents_len
-                    - old_contents_len
-                    - self._stop_idx
-                    + self._selected
-                    + 1,
-                )
-                self._start_idx = max(0, self._stop_idx - self._height)
-
-            if contents_len <= self._height:
-                self._start_idx = 0
-                self._stop_idx = self._height
-            elif self._height > (contents_len - self._start_idx):
-                self._start_idx = contents_len - self._height
-                self._stop_idx = contents_len
-
-            if self._selected < self._start_idx:
-                self._start_idx = self._selected
-                self._stop_idx = self._start_idx + self._height
-
-            if self._selected > self._stop_idx:
-                self._stop_idx = self._selected
-                self._start_idx = max(0, self._stop_idx - self._height)
+            self._adjust_idx()
 
     def _get_contents(self) -> None:
         """Get contents of menu item."""
@@ -183,11 +173,13 @@ class CursesMenu:
             self._selected = self._start_idx
 
         elif key == ord("M"):
-            stop = min(self._stop_idx, len(self.contents))
+            stop = min(self._start_idx + self._height, len(self.contents))
             self._selected = self._start_idx + (stop - self._start_idx) // 2
 
         elif key == ord("L"):
-            self._selected = min(self._stop_idx, len(self.contents)) - 1
+            self._selected = (
+                min(self._start_idx + self._height, len(self.contents)) - 1
+            )
 
         # Enter
         elif key == ord("\n"):
@@ -261,31 +253,21 @@ class CursesMenu:
     def _signal_win_resize(self, signum, stack_frame) -> None:  # noqa: ARG002
         """Handle SIGWINCH signal (resize window)."""
         self._width, self._height = os.get_terminal_size()
-
-        if self._start_idx > self._selected:
-            self._start_idx = self._selected + 1
-
-        self._stop_idx = self._start_idx + self._height
-
-        if self._stop_idx < self._selected + 1:
-            self._stop_idx = self._selected + 1
-            self._start_idx = max(0, self._stop_idx - self._height)
+        logger.debug(f"_signal_win_resize: {self._width=}; {self._height=}")
+        self._adjust_idx()
 
         self._stdscr.clear()
         self._stdscr.refresh()
         self.display_menu()
 
     def _save_state(self):
-        self._saved_state = self._start_idx, self._stop_idx, self._selected
+        self._saved_state = self._start_idx, self._selected
         self._start_idx = 0
-        self._stop_idx = self._height
         self._selected = 0
 
     def _restore_state(self):
         if self._saved_state:
-            self._start_idx, self._stop_idx, self._selected = (
-                self._saved_state
-            )
+            self._start_idx, self._selected = self._saved_state
             self._saved_state = None
 
     @staticmethod
