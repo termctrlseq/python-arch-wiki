@@ -161,11 +161,11 @@ class CursesMenu:
         """Handle keyboard and mouse events."""
         key = self._stdscr.getch()
 
-        # Up arrow, Ctrl-p, Shift-TAB
+        # Up arrow, Ctrl-p, Shift-TAB, k
         if key in [curses.KEY_UP, 16, curses.KEY_BTAB, ord("k")]:
             self._previous()
 
-        # Down arrow, Ctrl-n, TAB
+        # Down arrow, Ctrl-n, TAB, j
         elif key in [curses.KEY_DOWN, 14, ord("\t"), ord("j")]:
             self._next()
 
@@ -197,8 +197,8 @@ class CursesMenu:
         elif key in [4, ord("q")]:
             sys.exit()
 
-        # slash
-        elif key == ord("/"):
+        # slash or question
+        elif key in [ord("/"), ord("?")]:
             self._search()
 
         elif key == curses.KEY_MOUSE:
@@ -250,7 +250,7 @@ class CursesMenu:
                 )
                 self._stdscr.addstr(line + 1, column, border)
 
-    def _signal_win_resize(self, signum, stack_frame) -> None:  # noqa: ARG002
+    def _signal_win_resize(self, signum, stack_frame) -> None:
         """Handle SIGWINCH signal (resize window)."""
         self._width, self._height = os.get_terminal_size()
         logger.debug(f"_signal_win_resize: {self._width=}; {self._height=}")
