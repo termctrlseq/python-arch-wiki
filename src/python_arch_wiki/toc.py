@@ -433,6 +433,7 @@ class Toc:
             "profile": "default",
             "fulltext": "1",
         }
+        results = []
 
         try:
             with self.toc_session.get(
@@ -445,12 +446,12 @@ class Toc:
 
         except requests.exceptions.RequestException as e:
             logger.error(f"{e}")
-            return
 
-        results = []
-        for tag in soup.select(".mw-search-result"):
-            heading = tag.find(class_="mw-search-result-heading")
-            results.append([heading.a["href"], heading.a["title"]])  # type: ignore
+        else:
+            for tag in soup.select(".mw-search-result"):
+                heading = tag.find(class_="mw-search-result-heading")
+                if heading and (a := heading.find("a")):
+                    results.append((str(a["href"]), str(a["title"])))
 
         return results
 
