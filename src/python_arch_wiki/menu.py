@@ -276,10 +276,10 @@ class CursesMenu:
             raise EditCancelledError
         return ch
 
-    def _search(self):
-        max_y, max_x = self._stdscr.getmaxyx()
+    def _search(self) -> None:
+        max_x, max_y = os.get_terminal_size()
         uly, ulx = max_y // 2, max_x // 4
-        height, width = 1, curses.COLS // 2
+        height, width = 1, max_x // 2
         prompt = " Search: "
         plen = len(prompt)
         self._stdscr.addstr(uly, ulx, prompt)
@@ -306,8 +306,8 @@ class CursesMenu:
         logger.debug("search: %s\n%s", search_term, result)
 
         if result:
-            self.contents = result
             self._save_state()
+            self.contents = result
 
 
 def main() -> None:
