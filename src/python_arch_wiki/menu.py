@@ -83,9 +83,6 @@ class CursesMenu:
     def _adjust_idx(self) -> None:
         assert self._selected >= 0, "Selected can not be negative"
         contents_len = len(self.contents)
-        if contents_len == 0:
-            return
-
         self._selected = min(self._selected, contents_len - 1)
 
         # window is bigger than the whole menu contents
@@ -96,9 +93,11 @@ class CursesMenu:
         if self._selected >= self._start_idx + self._height:
             self._start_idx += 1
 
+        # adjust high limit
         self._start_idx = min(
             self._start_idx, self._selected, contents_len - self._height
         )
+        # adjust low limit
         self._start_idx = max(
             0, self._start_idx, self._selected - self._height
         )
@@ -117,32 +116,25 @@ class CursesMenu:
 
     def _fold(self, up_level: bool = False) -> None:
         """(Un)fold submenu."""
-        if hasattr(self.menu, "fold"):
-            section = self.contents[self._selected][0]
-            logger.debug("Fold: selected = %s", self._selected)
+        section = self.contents[self._selected][0]
 
-            if up_level:
-                if len(section) > 1:
-                    self.menu.fold(section[:-1])
+        if up_level:
+            if len(section) > 1:
+                self.menu.fold(section[:-1])
 
-                    for i, sect in enumerate(self.contents):
-                        if sect[0] == section[:-1]:
-                            self._selected = i
+                for i, sect in enumerate(self.contents):
+                    if sect[0] == section[:-1]:
+                        self._selected = i
 
-            else:
-                self.menu.fold(section)
+        else:
+            self.menu.fold(section)
 
-            self.contents = [
-                [line] if isinstance(line, str) else line
-                for line in self.menu
-            ]
+        self.contents = [
+            [line] if isinstance(line, str) else line for line in self.menu
+        ]
 
-            self._restore_state()
-
-            contents_len = len(self.contents)
-            self._selected = min(self._selected, contents_len - 1)
-
-            self._adjust_idx()
+        self._restore_state()
+        self._adjust_idx()
 
     def _get_contents(self) -> None:
         """Get contents of menu item."""
