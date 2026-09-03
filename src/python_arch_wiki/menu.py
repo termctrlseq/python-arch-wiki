@@ -84,7 +84,8 @@ class CursesMenu:
     def _adjust_idx(self) -> None:
         assert self._selected >= 0, "Selected can not be negative"
         contents_len = len(self.contents)
-        self._selected = min(self._selected, contents_len - 1)
+        if contents_len > 0:
+            self._selected = min(self._selected, contents_len - 1)
 
         # window is bigger than the whole menu contents
         if self._height >= contents_len:
