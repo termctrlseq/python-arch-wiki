@@ -66,9 +66,7 @@ class Toc:
                     r.raise_for_status()
 
                     soup = BeautifulSoup(r.text, "lxml")
-                    rows = soup.select_one("#wiki-scripts-toc-table").select(  # type: ignore
-                        "tr"
-                    )
+                    rows = soup.select("#wiki-scripts-toc-table tr")
                     section = rows[0]
                     for row in rows[1:]:
                         self.add_subsection(row, folded=folded)
