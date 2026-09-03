@@ -406,8 +406,10 @@ class Toc:
                 cls._console_print(tag.get_text())
 
     @classmethod
-    def display_contents(cls, href: str) -> None:
+    def display_contents(cls, href: str | tuple[str]) -> None:
         """Display article."""
+        if isinstance(href, tuple):
+            href = "/title/" + "_".join(href)
         try:
             with cls.toc_session.get(
                 cls._url_from_parts([cls.root_url, href]),

@@ -10,9 +10,8 @@ from .toc import Toc
 
 def run(args, link_url) -> None:
     toc = Toc(link_url=link_url)
-    if len(args) > 0:
-        article = "/title/" + "_".join(args)
-        toc.display_contents(article)
+    if args:
+        toc.display_contents(args)
     else:
         with CursesMenu(toc) as menu:
             result = None
