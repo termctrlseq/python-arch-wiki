@@ -253,6 +253,11 @@ class CursesMenu:
         logger.debug(f"_signal_win_resize: {self._width=}; {self._height=}")
         self._adjust_idx()
 
+        cursor_state = curses.curs_set(0)
+        # visible cursor == search box -> cancel search
+        if cursor_state == 1:
+            raise EditCancelledError
+
         self._stdscr.clear()
         self._stdscr.refresh()
         self.display_menu()
@@ -297,6 +302,9 @@ class CursesMenu:
         try:
             box.edit(self.validator)
         except EditCancelledError:
+            self._stdscr.clear()
+            self._stdscr.refresh()
+            self.display_menu()
             return
         finally:
             curses.curs_set(0)
