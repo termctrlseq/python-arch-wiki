@@ -20,8 +20,6 @@ def run(args, link_url) -> None:
                 menu.display_menu()
                 result = menu.handle_input()
 
-    toc.close()
-
 
 def setup_logging(verbose=False) -> None:
     app_name = "python-arch-wiki"
