@@ -16,6 +16,7 @@ class EditCancelledError(Exception):
 
 class CursesMenu:
     def __init__(self, menu) -> None:
+        self._oldsignal = None
         self._start_curses()
         self.menu = menu
         self.contents = [
@@ -24,14 +25,17 @@ class CursesMenu:
         self._selected = 0
         self._start_idx = 0
         self._saved_state = deque(maxlen=2)
-        try:
-            self._width, self._height = os.get_terminal_size()
-        except OSError:
-            self._height, self._width = self._stdscr.getmaxyx()
 
     def _start_curses(self) -> None:
         try:
             self._stdscr = curses.initscr()
+            try:
+                self._width, self._height = os.get_terminal_size()
+                self._oldsignal = signal.signal(
+                    signal.SIGWINCH, self._signal_win_resize
+                )
+            except OSError:
+                self._height, self._width = self._stdscr.getmaxyx()
             curses.noecho()
             curses.cbreak()
             self._stdscr.keypad(True)
@@ -41,16 +45,14 @@ class CursesMenu:
             curses.init_pair(10, 1, -1)
             curses.mousemask(curses.ALL_MOUSE_EVENTS)
             curses.set_escdelay(50)
-            self._oldsignal = signal.signal(
-                signal.SIGWINCH, self._signal_win_resize
-            )
 
         except curses.error as e:
             run("reset", check=False)
             sys.exit(f"{e}")
 
     def _end_curses(self) -> None:
-        signal.signal(signal.SIGWINCH, self._oldsignal)
+        if self._oldsignal is not None:
+            signal.signal(signal.SIGWINCH, self._oldsignal)
         self._stdscr.keypad(False)
         curses.nocbreak()
         curses.echo()
@@ -250,7 +252,10 @@ class CursesMenu:
     def _signal_win_resize(self, signum, stack_frame) -> None:
         """Handle SIGWINCH signal (resize window)."""
         self._width, self._height = os.get_terminal_size()
-        logger.debug(f"_signal_win_resize: {self._width=}; {self._height=}")
+        curses.resizeterm(self._height, self._width)
+        logger.debug(
+            f"_signal_win_resize: {self._width=}; {self._height=}; {curses.COLS=}; {curses.LINES=}"
+        )
         self._adjust_idx()
 
         cursor_state = curses.curs_set(0)
@@ -258,8 +263,6 @@ class CursesMenu:
         if cursor_state == 1:
             raise EditCancelledError
 
-        self._stdscr.clear()
-        self._stdscr.refresh()
         self.display_menu()
 
     def _save_state(self):
@@ -282,7 +285,11 @@ class CursesMenu:
         return ch
 
     def _search(self) -> None:
-        max_x, max_y = os.get_terminal_size()
+        try:
+            max_x, max_y = os.get_terminal_size()
+        except OSError:
+            max_y, max_x = self._stdscr.getmaxyx()
+
         uly, ulx = max_y // 2, max_x // 4
         height, width = 1, max_x // 2
         prompt = " Search: "
@@ -302,8 +309,6 @@ class CursesMenu:
         try:
             box.edit(self.validator)
         except EditCancelledError:
-            self._stdscr.clear()
-            self._stdscr.refresh()
             self.display_menu()
             return
         finally:
