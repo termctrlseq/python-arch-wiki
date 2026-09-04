@@ -1,5 +1,5 @@
 #!/bin/sh
 
 cd "$(dirname "$(realpath "$0")")" || exit
-uv run wiki "$@"
+uv run python-arch-wiki "$@"
 
