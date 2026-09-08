@@ -8,7 +8,7 @@ To install in the virtual environment in the directory `python_arch_wiki` and cr
 ```bash
 mkdir python_arch_wiki
 cd python_arch_wiki
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 pip install -e 'python-arch-wiki @ git+https://github.com/termctrlseq/python-arch-wiki.git'
 ln -s "$(realpath venv/bin/python-arch-wiki)" "$HOME/.local/bin/wiki"
