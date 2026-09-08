@@ -9,9 +9,9 @@ To install in the virtual environment in the directory `python_arch_wiki` and cr
 mkdir python_arch_wiki
 cd python_arch_wiki
 python3 -m venv venv
-source venv/bin/activate
-pip install -e 'python-arch-wiki @ git+https://github.com/termctrlseq/python-arch-wiki.git'
-ln -s "$(realpath venv/bin/python-arch-wiki)" "$HOME/.local/bin/wiki"
+venv/bin/python -m pip install \
+    -e 'python-arch-wiki @ git+https://github.com/termctrlseq/python-arch-wiki.git'
+ln -s "$PWD/venv/bin/python-arch-wiki" "$HOME/.local/bin/wiki"
 ```
 
 To add `~/.local/bin` to **PATH** put this in your `~/.bashrc`
