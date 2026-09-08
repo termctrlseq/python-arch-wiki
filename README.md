@@ -72,11 +72,12 @@ wiki zram
 | `q` / `Ctrl-D`                     | Quit                |
 
 Mouse input is also supported:
-
-* *Left click* — select
-* *Double left click* — open
-* *Right click* — fold/unfold
-* *Wheel* — navigate
+| Button              | Action      |
+| ------------------- | ----------- |
+| *Left click*        | select      |
+| *Double left click* | open        |
+| *Right click*       | fold/unfold |
+| *Wheel*             | navigate    |
 
 Articles are rendered in the terminal and paged with `less`.
 
