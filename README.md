@@ -1,26 +1,53 @@
 # python-arch-wiki
 
-A terminal interface for browsing the [Arch Linux Wiki](https://wiki.archlinux.org/).
+A terminal interface for browsing the [Arch Linux Wiki](https://wiki.archlinux.org/), with an interactive table of contents and article search.
+
+## Installation
+
+To install in the virtual environment in the directory `python_arch_wiki` and create a link with a name *wiki* (assuming `~/.local/bin` is in the **PATH**):
+```bash
+mkdir python_arch_wiki
+cd python_arch_wiki
+python -m venv venv
+source venv/bin/activate
+pip install -e 'python-arch-wiki @ git+https://github.com/termctrlseq/python-arch-wiki.git'
+ln -s "$(realpath venv/bin/python-arch-wiki)" "$HOME/.local/bin/wiki"
+```
+
+To add `~/.local/bin` to **PATH** put this in your `~/.bashrc`
+```bash
+# add ~/.local/bin to PATH if not in it
+[[ ":${PATH}:" != *:"${HOME}/.local/bin":* ]] \
+    && export PATH="${HOME}/.local/bin:${PATH}"
+```
+
+Then the source code can be found in `~/python_arch_wiki/venv/src/`.
 
 ## Usage
+
+```
+wiki [-l] [-v] [article name]
+```
+
+## Options
+
+```text
+-l, --link-url    Show URLs in links
+-v, --verbose     Enable debug logging
+```
+
+## Examples
 
 Run the interactive table of contents:
 
 ```bash
-uv run python-arch-wiki
+wiki
 ```
 
-Or open an article directly:
+Open an article directly:
 
 ```bash
-uv run python-arch-wiki linux kernel
-```
-
-Options:
-
-```text
---link-url    Show URLs in links
---verbose     Enable debug logging
+wiki installation guide
 ```
 
 ## Controls
@@ -40,15 +67,15 @@ Options:
 
 Mouse input is also supported:
 
-* Left click — select
-* Double left click — open
-* Right click — fold/unfold
-* Wheel — navigate
+* *Left click* — select
+* *Double left click* — open
+* *Right click* — fold/unfold
+* *Wheel* — navigate
 
 Articles are rendered in the terminal and paged with `less`.
 
 ## Requirements
 
 * Python 3.13+
-* Internet connection
 * A terminal with `curses` support
+* Internet connection
