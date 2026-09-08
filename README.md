@@ -38,16 +38,22 @@ wiki [-l] [-v] [article name]
 
 ## Examples
 
-Run the interactive table of contents:
+Open the table of contents:
 
 ```bash
 wiki
 ```
 
-Open an article directly:
+From there, press `/` to search the Arch Wiki. The search uses the Arch Wiki's own search engine, and the results are presented in a navigable menu. For convenience, this can be preferable to specifying a longer query on the command line:
+
+```text
+/install
+```
+
+For short, specific searches, giving the article name on the command line is often more convenient:
 
 ```bash
-wiki installation guide
+wiki zram
 ```
 
 ## Controls
