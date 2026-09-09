@@ -24,7 +24,7 @@ class CursesMenu:
         ]
         self._selected = 0
         self._start_idx = 0
-        self._saved_state = deque(maxlen=2)
+        self._saved_state = deque(maxlen=15)
 
     def _start_curses(self) -> None:
         try:
