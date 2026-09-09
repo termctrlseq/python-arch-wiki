@@ -4,7 +4,9 @@ A terminal interface for browsing the [Arch Linux Wiki](https://wiki.archlinux.o
 
 ## Installation
 
-To install in the virtual environment in the directory `python_arch_wiki` and create a link with a name *wiki* (assuming `~/.local/bin` is in the **PATH**):
+The program can be run directly with uvx; install it in a virtual environment if you want access to the source code.
+
+To install latest version from GitHub with source and create a link with a name *wiki* (assuming `~/.local/bin` is in the **PATH**):
 ```bash
 mkdir python_arch_wiki
 cd python_arch_wiki
@@ -13,6 +15,7 @@ venv/bin/python -m pip install \
     -e 'python-arch-wiki @ git+https://github.com/termctrlseq/python-arch-wiki.git'
 ln -s "$PWD/venv/bin/python-arch-wiki" "$HOME/.local/bin/wiki"
 ```
+Then the source code can be found in `~/python_arch_wiki/venv/src/`.
 
 To add `~/.local/bin` to **PATH** put this in your `~/.bashrc`
 ```bash
@@ -21,15 +24,19 @@ To add `~/.local/bin` to **PATH** put this in your `~/.bashrc`
     && export PATH="${HOME}/.local/bin:${PATH}"
 ```
 
-Then the source code can be found in `~/python_arch_wiki/venv/src/`.
-
 ## Usage
 
+Run:
+```
+uvx python-arch-wiki [-l] [-v] [article name]
+```
+
+Or if installed:
 ```
 wiki [-l] [-v] [article name]
 ```
 
-## Options
+### Options
 
 ```text
 -l, --link-url    Show URLs in links
