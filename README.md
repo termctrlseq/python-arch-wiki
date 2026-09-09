@@ -2,6 +2,8 @@
 
 A terminal interface for browsing the [Arch Linux Wiki](https://wiki.archlinux.org/), with an interactive table of contents and article search.
 
+![Python Arch Wiki](python_arch_wiki.gif)
+
 ## Installation
 
 The program can be run directly with uvx; install it in a virtual environment if you want access to the source code.
