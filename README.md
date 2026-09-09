@@ -28,17 +28,18 @@ To add `~/.local/bin` to **PATH** put this in your `~/.bashrc`
 
 Run:
 ```
-uvx python-arch-wiki [-l] [-v] [article name]
+uvx python-arch-wiki [-h | [-l] [-v] [article name]]
 ```
 
 Or if installed:
 ```
-wiki [-l] [-v] [article name]
+wiki [-h | [-l] [-v] [article name]]
 ```
 
 ### Options
 
 ```text
+-h, --help        Show a help message and exit
 -l, --link-url    Show URLs in links
 -v, --verbose     Enable debug logging
 ```
