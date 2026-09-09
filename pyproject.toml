@@ -1,6 +1,6 @@
 [project]
 name = "python-arch-wiki"
-version = "0.1.0"
+version = "0.1.1"
 description = "A terminal interface for browsing the Arch Linux Wiki"
 readme = "README.md"
 authors = [
