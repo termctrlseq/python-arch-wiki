@@ -381,9 +381,8 @@ class Toc:
 
             elif tag.name == "table":
                 caption = tag.find("caption")
-                title = caption.get_text() if caption else None
                 table = Table(
-                    title=title,
+                    title=caption.get_text() if caption else None,
                     box=box.ROUNDED,
                     highlight=True,
                     show_lines=True,
