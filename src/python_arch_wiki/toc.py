@@ -310,14 +310,10 @@ class Toc:
         return rows
 
     @classmethod
-    def _parse_section(cls, section: Tag | None) -> None:
+    def _parse_section(cls, section: Tag) -> None:
         """Extract text from tags and apply formatting."""
-        if section is None:
-            return
-
-        for tag in section.children:  # type: ignore
-            tag: Tag
-            if tag.name is None:
+        for tag in section.children:
+            if not isinstance(tag, Tag):
                 continue
 
             for code in tag("code"):
@@ -414,15 +410,19 @@ class Toc:
                 timeout=1,
             ) as r:
                 r.raise_for_status()
-                soup = BeautifulSoup(escape(r.text), "lxml")
 
         except requests.exceptions.RequestException as e:
             cls.toc_session.close()
             logger.error(f"{e}")
             sys.exit(f"{e}")
 
+        section = BeautifulSoup(escape(r.text), "lxml").select_one(
+            "#bodyContent"
+        )
+        assert section, "Article content not found"
+
         with console.pager(styles=True):
-            cls._parse_section(soup.select_one("#bodyContent"))
+            cls._parse_section(section)
 
     def search(self, text: str) -> list[Article]:
         """Search arch wiki."""
