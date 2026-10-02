@@ -46,5 +46,9 @@ show-fixes = true
 unsafe-fixes = true
 
 [tool.ruff.lint]
-# select = []
-# ignore = []
+extend-select = [
+  # flake8-builtins
+  "A",
+  # flake8-symplify
+  "SIM",
+]
