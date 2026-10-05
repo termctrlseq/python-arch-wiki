@@ -357,6 +357,8 @@ class Toc:
                             color += " blue"
                         case "warning":
                             color += " yellow"
+                        case _:
+                            pass
 
                     cls._console_print(
                         f"[{color}]{strong}:[/]{tag.get_text()}\n"
