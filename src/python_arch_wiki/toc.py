@@ -44,8 +44,8 @@ class Toc:
     def __init__(
         self,
         section: Tag | TocItem | None = None,
-        folded=True,
-        link_url=False,
+        folded: bool = True,
+        link_url: bool = False,
     ) -> None:
         """Initialize Toc section."""
         if type(self).link_url is None:
@@ -197,12 +197,13 @@ class Toc:
             subsection.folded = not subsection.folded
 
     @staticmethod
-    def _url_from_parts(parts: list) -> str:
+    def _url_from_parts(parts: list[str]) -> str:
         return "/".join(part.strip("/") for part in parts)
 
     def get_submenu(self, section: Section) -> list[Article]:
         """Return list of articles."""
-        assert section, "Valid section required"
+        assert isinstance(section, tuple), "Valid section required"
+
         subsection = self
         for i in section:
             subsection = subsection.subsections[i - 1]
@@ -252,13 +253,13 @@ class Toc:
         console.print(text)
 
     @staticmethod
-    def get_table_rows(tr_list: list[Tag]) -> list[list[str]] | None:
+    def get_table_rows(tr_list: list[Tag]) -> list[list[str | None]] | None:
         """Return a list of lists (rows) of strings (cols)."""
         nrows = len(tr_list)
         if nrows == 0:
             return None
 
-        rows = [[] for _ in range(nrows)]
+        rows: list[list[str | None]] = [[] for _ in range(nrows)]
         rgx = re.compile("t[dh]")
 
         for col in tr_list[0](rgx):
@@ -392,7 +393,7 @@ class Toc:
                     continue
 
                 for col in rows[0]:
-                    table.add_column(col)
+                    table.add_column(col or "")
                 for row in rows[1:]:
                     table.add_row(*row)
 
@@ -402,7 +403,7 @@ class Toc:
                 cls._console_print(tag.get_text())
 
     @classmethod
-    def display_contents(cls, href: str | tuple[str]) -> None:
+    def display_contents(cls, href: str | tuple[str, ...]) -> None:
         """Display article."""
         if isinstance(href, tuple):
             href = "/title/" + "_".join(href)
@@ -435,7 +436,7 @@ class Toc:
             "profile": "default",
             "fulltext": "1",
         }
-        results = []
+        results: list[tuple[str, str]] = []
 
         try:
             with self.toc_session.get(
