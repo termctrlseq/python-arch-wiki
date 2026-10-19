@@ -96,3 +96,8 @@ Articles are rendered in the terminal and paged with `less`.
 * Python 3.13+
 * A terminal with `curses` support
 * Internet connection
+
+## License
+
+This project is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for details.
