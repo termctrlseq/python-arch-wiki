@@ -1,16 +1,11 @@
-import copy
 import curses
 import logging
 import os
 import signal
 import sys
 from collections import deque
-from collections.abc import Sequence
 from curses.textpad import Textbox, rectangle
 from subprocess import run
-from typing import Any
-
-from python_arch_wiki.toc import Toc
 
 logger = logging.getLogger(__name__)
 
@@ -20,18 +15,16 @@ class EditCancelledError(Exception):
 
 
 class CursesMenu:
-    def __init__(self, menu: Toc) -> None:
+    def __init__(self, menu) -> None:
         self._oldsignal = None
         self._start_curses()
-        self.menu: Toc = menu
-        self.contents: Sequence[Toc.MenuItem | str | tuple[str, str]] = (
-            menu.get_entries()
-        )
+        self.menu = menu
+        self.contents = [
+            [line] if isinstance(line, str) else line for line in self.menu
+        ]
         self._selected = 0
         self._start_idx = 0
-        self._saved_state: deque[
-            tuple[int, int, Sequence[Toc.MenuItem | str | tuple[str, str]]]
-        ] = deque(maxlen=15)
+        self._saved_state = deque(maxlen=15)
 
     def _start_curses(self) -> None:
         try:
@@ -69,7 +62,7 @@ class CursesMenu:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self._end_curses()
         return False
 
@@ -128,8 +121,6 @@ class CursesMenu:
     def _fold(self, up_level: bool = False) -> None:
         """(Un)fold submenu."""
         section = self.contents[self._selected][0]
-        if not section or not isinstance(section, tuple):
-            return
 
         if up_level:
             if len(section) > 1:
@@ -145,22 +136,24 @@ class CursesMenu:
         if len(self._saved_state) > 0:
             self._restore_state()
         else:
-            self.contents = self.menu.get_entries()
+            self.contents = [
+                [line] if isinstance(line, str) else line
+                for line in self.menu
+            ]
 
         self._adjust_idx()
 
     def _get_contents(self) -> None:
         """Get contents of menu item."""
-        section = self.contents[self._selected][0]
-        assert section, "Valid section required"
+        selected = self.contents[self._selected][0]
 
-        if isinstance(section, tuple):
+        if isinstance(selected, tuple):
             self._save_state()
-            self.contents = self.menu.get_submenu(section)
+            self.contents = self.menu.get_submenu(selected)
 
         else:
             self._end_curses()
-            self.menu.display_contents(section)
+            self.menu.display_contents(selected)
             self._start_curses()
 
     def handle_input(self) -> int | None:
@@ -256,7 +249,7 @@ class CursesMenu:
                 )
                 self._stdscr.addstr(line + 1, column, border)
 
-    def _signal_win_resize(self, signum: int, stack_frame: Any) -> None:
+    def _signal_win_resize(self, signum, stack_frame) -> None:
         """Handle SIGWINCH signal (resize window)."""
         self._width, self._height = os.get_terminal_size()
         curses.resizeterm(self._height, self._width)
@@ -274,7 +267,7 @@ class CursesMenu:
 
     def _save_state(self):
         self._saved_state.append(
-            (self._start_idx, self._selected, copy.copy(self.contents))
+            (self._start_idx, self._selected, self.contents.copy())
         )
         self._start_idx = 0
         self._selected = 0
@@ -286,7 +279,7 @@ class CursesMenu:
             )
 
     @staticmethod
-    def validator(ch: int) -> int:
+    def validator(ch):
         if ch == 27:
             raise EditCancelledError
         return ch
@@ -328,3 +321,21 @@ class CursesMenu:
         if result:
             self._save_state()
             self.contents = result
+
+
+def main() -> None:
+    menu_items = []
+    for i in range(50):
+        menu_items.append(f"Option_{i}")
+
+    result = None
+    with CursesMenu(menu_items) as menu:
+        while not result:
+            menu.display_menu()
+            result = menu.handle_input()
+
+    print(result)
+
+
+if __name__ == "__main__":
+    main()
