@@ -6,7 +6,7 @@ A terminal interface for browsing the [Arch Linux Wiki](https://wiki.archlinux.o
 
 ## Installation
 
-The easiest way to use this program is with uvx python-arch-wiki or install it in a virtual environment to have easier access to the source code.
+The easiest way to use this program is with `uvx python-arch-wiki` or install it in a virtual environment to have easier access to the source code.
 
 To install latest version from GitHub with source and create a link with a name *wiki* (assuming `~/.local/bin` is in the **PATH**):
 ```bash
@@ -77,7 +77,7 @@ wiki zram
 | `L`                                | Last visible item   |
 | `Enter`                            | Open                |
 | `Space` / `l`                      | Fold/unfold         |
-| `h` / `u` / `Esc`                  | Go up               |
+| `h` / `u` / `Esc`                  | Back                |
 | `/` / `?`                          | Search              |
 | `q` / `Ctrl-D`                     | Quit                |
 
