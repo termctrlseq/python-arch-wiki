@@ -15,6 +15,7 @@ cd python_arch_wiki
 python3 -m venv venv
 venv/bin/python -m pip install \
     -e 'python-arch-wiki @ git+https://github.com/termctrlseq/python-arch-wiki.git'
+mkdir -p "$HOME/.local/bin"
 ln -s "$PWD/venv/bin/python-arch-wiki" "$HOME/.local/bin/wiki"
 ```
 Then the source code can be found in `~/python_arch_wiki/venv/src/`.
