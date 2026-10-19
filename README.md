@@ -6,7 +6,7 @@ A terminal interface for browsing the [Arch Linux Wiki](https://wiki.archlinux.o
 
 ## Installation
 
-The program can be run directly with uvx; install it in a virtual environment if you want access to the source code.
+The easiest way to use this program is with uvx python-arch-wiki or install it in a virtual environment to have easier access to the source code.
 
 To install latest version from GitHub with source and create a link with a name *wiki* (assuming `~/.local/bin` is in the **PATH**):
 ```bash
