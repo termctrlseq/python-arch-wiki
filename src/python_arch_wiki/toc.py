@@ -3,7 +3,7 @@ import os
 import re
 import sys
 import time
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 
 import requests
 from bs4 import BeautifulSoup
@@ -147,7 +147,7 @@ class Toc:
         self,
         section: "Toc | None" = None,
         toc_list: list[MenuItem] | None = None,
-    ) -> list[MenuItem]:
+    ) -> Sequence[tuple[tuple[int, ...] | None, str]]:
         """Return a list of section/title tuples."""
         if section is None:
             section = self

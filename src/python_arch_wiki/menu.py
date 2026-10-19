@@ -24,9 +24,9 @@ class CursesMenu:
         self._oldsignal = None
         self._start_curses()
         self.menu: Toc = menu
-        self.contents: Sequence[Toc.MenuItem | str | tuple[str, str]] = (
-            menu.get_entries()
-        )
+        self.contents: Sequence[
+            tuple[tuple[int, ...] | None, str] | str | tuple[str, str]
+        ] = menu.get_entries()
         self._selected = 0
         self._start_idx = 0
         self._saved_state: deque[
@@ -128,19 +128,20 @@ class CursesMenu:
     def _fold(self, up_level: bool = False) -> None:
         """(Un)fold submenu."""
         section = self.contents[self._selected][0]
-        if not section or not isinstance(section, tuple):
+        if section is None:
             return
 
-        if up_level:
-            if len(section) > 1:
-                self.menu.fold(section[:-1])
+        if isinstance(section, tuple):
+            if up_level:
+                if len(section) > 1:
+                    self.menu.fold(section[:-1])
 
-                for i, sect in enumerate(self.contents):
-                    if sect[0] == section[:-1]:
-                        self._selected = i
+                    for i, sect in enumerate(self.contents):
+                        if sect[0] == section[:-1]:
+                            self._selected = i
 
-        else:
-            self.menu.fold(section)
+            else:
+                self.menu.fold(section)
 
         if len(self._saved_state) > 0:
             self._restore_state()
