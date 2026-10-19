@@ -8,7 +8,7 @@ from .menu import CursesMenu
 from .toc import Toc
 
 
-def run(args, link_url) -> None:
+def run(args: tuple[str, ...], link_url: bool) -> None:
     toc = Toc(link_url=link_url)
     if args:
         toc.display_contents(args)
@@ -20,7 +20,7 @@ def run(args, link_url) -> None:
                 result = menu.handle_input()
 
 
-def setup_logging(verbose=False) -> None:
+def setup_logging(verbose: bool = False) -> None:
     app_name = "python-arch-wiki"
     log_dir = Path(user_log_dir(app_name))
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -37,7 +37,9 @@ def setup_logging(verbose=False) -> None:
 
 
 @autocommand(__name__)
-def main(link_url=False, verbose=False, *article) -> None:
+def main(
+    link_url: bool = False, verbose: bool = False, *article: str
+) -> None:
     setup_logging(verbose)
     run(article, link_url)
 
